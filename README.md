@@ -18,8 +18,7 @@ y un panel privado para administrar todo el contenido sin tocar código.
 ```bash
 npm install
 cp .env.example .env.local      # completar DATABASE_URL y SESSION_SECRET
-npm run db:push                 # crea/actualiza las tablas
-npm run db:seed                 # contenido de ejemplo + usuario admin
+npm run db:setup                # crea/actualiza las tablas y carga el contenido inicial
 npm run dev
 ```
 
@@ -36,11 +35,59 @@ Acceso al panel: `/admin` → `admin@elenakuchimpos.com` / `elena2026`
 | `npm run lint` | ESLint |
 | `npm run db:push` | Sincroniza el esquema de Drizzle con la base |
 | `npm run db:seed` | Carga contenido inicial si la base está vacía |
+| `npm run db:setup` | `db:push` + `db:seed` (puesta en marcha en un paso) |
+| `npm run db:verify` | Diagnóstico: conexión, tablas, contenido y usuario admin |
 | `npm run check:discovery` | Prueba del rastreador web con respuestas simuladas |
 
 > El esquema también se auto-repara en tiempo de ejecución
 > (`src/db/bootstrap.ts`): si una instalación no corrió `db:push`, las tablas del
 > rastreo se crean solas la primera vez que se usa el panel.
+>
+> Orden de carga de variables fuera de Next (`drizzle-kit`, seed y scripts):
+> `.env.local` → `.env.development.local` → `.env` (el primero que define una
+> variable gana).
+
+## Base de datos en Supabase
+
+1. Creá el proyecto en <https://supabase.com> (región `us-east-1` o la más
+   cercana) y copiá la cadena de conexión: **Project Settings → Database →
+   Connection string → Session pooler**.
+
+   ```
+   postgresql://postgres.<PROJECT_REF>:<PASSWORD>@aws-0-<REGION>.pooler.supabase.com:5432/postgres
+   ```
+
+   Se usa el **session pooler** porque tiene IPv4 (la conexión directa
+   `db.<REF>.supabase.co` es solo IPv6 salvo que compres el add-on) y admite DDL,
+   así que sirve tanto para la app como para `drizzle-kit push`.
+
+2. Pegala en `.env.local` como `DATABASE_URL` (no hace falta nada más: la app
+   habla Postgres con Drizzle, **no** usa `supabase-js` ni la anon key).
+
+3. Prepará la base:
+
+   ```bash
+   npm run db:setup     # crea las tablas y carga el contenido inicial
+   npm run db:verify    # confirma conexión, tablas, contenido y usuario admin
+   ```
+
+   Si preferís que la app corra en serverless, separá las conexiones: dejá
+   `DATABASE_URL` con el *transaction pooler* (puerto `6543`, `?pgbouncer=true`)
+   y agregá `DIRECT_URL` con el *session pooler* (puerto `5432`) para las
+   migraciones. `drizzle.config.ts` usa `DIRECT_URL` y, si no existe,
+   `DATABASE_URL`.
+
+### Notas de Supabase
+
+- El esquema también se auto-crea la primera vez que se usa el panel
+  (`ensureSchema()`), útil si el deploy no corre `db:push`.
+- La conexión usa el rol dueño de las tablas, así que **RLS no bloquea** nada.
+  Si más adelante exponés las tablas a la API pública de Supabase, activá RLS y
+  usá la `service_role` solo del lado del servidor.
+- Los proyectos del plan gratuito se **pausan tras ~7 días sin actividad**; si
+  usás el rastreo automático por cron, tenelo en cuenta.
+- La CLI de Supabase **no es necesaria**: las migraciones del proyecto son de
+  Drizzle (`db:push`), no `supabase/migrations`.
 
 ## Secciones del sitio
 

@@ -9,7 +9,7 @@
  *
  * Uso:  npm run check:discovery
  */
-import "dotenv/config";
+import "../src/db/env";
 import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
 import { eq, inArray } from "drizzle-orm";
 import { db } from "../src/db";

@@ -1,4 +1,4 @@
-import "dotenv/config";
+import "./env";
 import { hashSync } from "bcryptjs";
 import { count, eq } from "drizzle-orm";
 import { db } from "./index";
