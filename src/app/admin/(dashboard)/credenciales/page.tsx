@@ -2,12 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import type { Credential } from "@/db/schema";
-import {
-  ArrowDownIcon,
-  ArrowUpIcon,
-  TrashIcon,
-  EditIcon,
-} from "@/components/icons";
+import { ArrowUp, ArrowDown, Trash2, Pencil } from "lucide-react";
 import {
   Button,
   ConfirmDialog,
@@ -17,6 +12,8 @@ import {
   Spinner,
   Textarea,
 } from "@/components/admin/ui";
+import IconPicker from "@/components/admin/icon-picker";
+import { getIconComponent } from "@/lib/lucide-icons";
 
 type Draft = {
   icon: string;
@@ -27,7 +24,7 @@ type Draft = {
 };
 
 const EMPTY_DRAFT: Draft = {
-  icon: "🎓",
+  icon: "GraduationCap",
   title: "",
   institution: "",
   description: "",
@@ -148,15 +145,17 @@ export default function CredentialsPage() {
           <h2 className="mb-4 font-serif text-lg font-semibold text-ink">
             {editing === "new" ? "Nueva credencial" : "Editar credencial"}
           </h2>
-          <div className="grid gap-4 sm:grid-cols-[80px_1fr_1fr]">
+
+          <div className="mb-4">
             <Field label="Ícono">
-              <Input
+              <IconPicker
                 value={draft.icon}
-                maxLength={4}
-                onChange={(e) => setDraft({ ...draft, icon: e.target.value })}
-                placeholder="🎓"
+                onChange={(icon) => setDraft({ ...draft, icon })}
               />
             </Field>
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-2">
             <Field label="Título" required>
               <Input
                 value={draft.title}
@@ -220,61 +219,68 @@ export default function CredentialsPage() {
         </p>
       ) : (
         <ul className="space-y-3">
-          {items.map((c, i) => (
-            <li
-              key={c.id}
-              className={`flex items-center gap-3 rounded-2xl border bg-white px-4 py-3 ${
-                c.highlight ? "border-accent-300" : "border-ink/10"
-              }`}
-            >
-              <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-brand-50 text-xl">
-                {c.icon || "🎓"}
-              </span>
-              <div className="min-w-0 flex-1">
-                <p className="font-medium text-ink">
-                  {i + 1}. {c.title}
-                </p>
-                <p className="truncate text-sm text-ink/55">{c.institution}</p>
-              </div>
+          {items.map((c, i) => {
+            const LucideIcon = getIconComponent(c.icon);
+            return (
+              <li
+                key={c.id}
+                className={`flex items-center gap-3 rounded-2xl border bg-white px-4 py-3 ${
+                  c.highlight ? "border-accent-300" : "border-ink/10"
+                }`}
+              >
+                <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-brand-50 text-brand-600">
+                  {LucideIcon ? (
+                    <LucideIcon className="h-5 w-5" />
+                  ) : (
+                    <span className="text-xl">{c.icon || "🎓"}</span>
+                  )}
+                </span>
+                <div className="min-w-0 flex-1">
+                  <p className="font-medium text-ink">
+                    {i + 1}. {c.title}
+                  </p>
+                  <p className="truncate text-sm text-ink/55">{c.institution}</p>
+                </div>
 
-              <div className="flex shrink-0 items-center gap-1">
-                <button
-                  type="button"
-                  onClick={() => move(c.id, -1)}
-                  disabled={i === 0}
-                  className="grid h-8 w-8 place-items-center rounded-lg text-ink/50 hover:bg-ink/5 disabled:opacity-30"
-                  aria-label="Subir"
-                >
-                  <ArrowUpIcon className="h-4 w-4" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => move(c.id, 1)}
-                  disabled={i === items.length - 1}
-                  className="grid h-8 w-8 place-items-center rounded-lg text-ink/50 hover:bg-ink/5 disabled:opacity-30"
-                  aria-label="Bajar"
-                >
-                  <ArrowDownIcon className="h-4 w-4" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => startEdit(c)}
-                  className="grid h-8 w-8 place-items-center rounded-lg text-brand-700 hover:bg-brand-50"
-                  aria-label="Editar"
-                >
-                  <EditIcon className="h-4 w-4" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setToDelete(c)}
-                  className="grid h-8 w-8 place-items-center rounded-lg text-red-600 hover:bg-red-50"
-                  aria-label="Eliminar"
-                >
-                  <TrashIcon className="h-4 w-4" />
-                </button>
-              </div>
-            </li>
-          ))}
+                <div className="flex shrink-0 items-center gap-1">
+                  <button
+                    type="button"
+                    onClick={() => move(c.id, -1)}
+                    disabled={i === 0}
+                    className="grid h-8 w-8 place-items-center rounded-lg text-ink/50 hover:bg-ink/5 disabled:opacity-30"
+                    aria-label="Subir"
+                  >
+                    <ArrowUp className="h-4 w-4" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => move(c.id, 1)}
+                    disabled={i === items.length - 1}
+                    className="grid h-8 w-8 place-items-center rounded-lg text-ink/50 hover:bg-ink/5 disabled:opacity-30"
+                    aria-label="Bajar"
+                  >
+                    <ArrowDown className="h-4 w-4" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => startEdit(c)}
+                    className="grid h-8 w-8 place-items-center rounded-lg text-brand-700 hover:bg-brand-50"
+                    aria-label="Editar"
+                  >
+                    <Pencil className="h-4 w-4" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setToDelete(c)}
+                    className="grid h-8 w-8 place-items-center rounded-lg text-red-600 hover:bg-red-50"
+                    aria-label="Eliminar"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                </div>
+              </li>
+            );
+          })}
         </ul>
       )}
 
