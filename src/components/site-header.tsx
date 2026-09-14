@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { Menu, X } from "lucide-react";
 
 const NAV = [
@@ -23,12 +23,10 @@ export default function SiteHeader() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // Close mobile menu on navigation via browser back/forward
-  const prevPathnameRef = useRef(pathname);
-  if (prevPathnameRef.current !== pathname && open) {
+  // Close mobile menu on navigation (back/forward, link clicks)
+  useEffect(() => {
     setOpen(false);
-  }
-  prevPathnameRef.current = pathname;
+  }, [pathname]);
 
   useEffect(() => {
     document.body.style.overflow = open ? "hidden" : "";
