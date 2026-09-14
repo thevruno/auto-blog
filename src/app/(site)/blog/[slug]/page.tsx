@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import {
   getPublishedPostBySlug,
@@ -9,7 +10,7 @@ import {
 import { absoluteUrl, formatDate } from "@/lib/utils";
 import RichText from "@/components/rich-text";
 import PostCard from "@/components/post-card";
-import { CalendarIcon, ClockIcon, TagIcon } from "@/components/icons";
+import { Calendar, Clock, Tag, ChevronRight } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
@@ -82,30 +83,66 @@ export default async function PostPage({
     mainEntityOfPage: absoluteUrl(`/blog/${post.slug}`),
   };
 
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Inicio",
+        item: absoluteUrl("/"),
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "Blog",
+        item: absoluteUrl("/blog"),
+      },
+      {
+        "@type": "ListItem",
+        position: 3,
+        name: post.title,
+        item: absoluteUrl(`/blog/${post.slug}`),
+      },
+    ],
+  };
+
   return (
     <>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
       />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+      />
 
       <article className="mx-auto max-w-3xl px-4 py-12 sm:px-6">
-        <nav className="text-sm text-ink/55" aria-label="Miga de pan">
-          <Link href="/blog" className="hover:text-brand-700">
+        {/* Breadcrumbs */}
+        <nav
+          className="flex items-center gap-1.5 text-sm text-ink/45 animate-fade-in"
+          aria-label="Miga de pan"
+        >
+          <Link
+            href="/blog"
+            className="transition-colors duration-200 hover:text-brand-700"
+          >
             Blog
           </Link>
-          <span className="mx-1.5">/</span>
-          <span>{post.title}</span>
+          <ChevronRight className="h-3.5 w-3.5" />
+          <span className="text-ink/60 line-clamp-1">{post.title}</span>
         </nav>
 
-        <header className="mt-6">
+        <header className="mt-8 animate-slide-up">
           {post.tags && post.tags.length > 0 && (
             <div className="mb-4 flex flex-wrap gap-2">
               {post.tags.map((tag) => (
                 <Link
                   key={tag}
                   href={`/blog?tag=${encodeURIComponent(tag)}`}
-                  className="rounded-full bg-brand-50 px-3 py-1 text-xs font-semibold text-brand-700 hover:bg-brand-100"
+                  className="rounded-full bg-brand-50 px-3 py-1 text-xs font-semibold text-brand-600 transition-colors duration-200 hover:bg-brand-100 hover:text-brand-700"
                 >
                   {tag}
                 </Link>
@@ -113,24 +150,24 @@ export default async function PostPage({
             </div>
           )}
 
-          <h1 className="text-balance font-serif text-3xl font-semibold leading-tight text-ink sm:text-4xl md:text-5xl">
+          <h1 className="text-balance font-serif text-3xl font-semibold leading-tight text-ink sm:text-4xl md:text-[2.75rem] md:leading-[1.15]">
             {post.title}
           </h1>
 
-          <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-ink/55">
+          <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-ink/50">
             <span className="flex items-center gap-1.5">
-              <CalendarIcon className="h-4 w-4" />
+              <Calendar className="h-4 w-4" />
               {formatDate(post.publishedAt)}
             </span>
             {post.readingTime ? (
               <span className="flex items-center gap-1.5">
-                <ClockIcon className="h-4 w-4" />
+                <Clock className="h-4 w-4" />
                 {post.readingTime} min de lectura
               </span>
             ) : null}
             {post.tags && post.tags.length > 0 && (
               <span className="flex items-center gap-1.5">
-                <TagIcon className="h-4 w-4" />
+                <Tag className="h-4 w-4" />
                 {post.tags.join(", ")}
               </span>
             )}
@@ -138,30 +175,39 @@ export default async function PostPage({
         </header>
 
         {post.coverImage && (
-          <div className="mt-8 overflow-hidden rounded-2xl">
-            <img
+          <div className="relative mt-8 overflow-hidden rounded-2xl shadow-card">
+            <Image
               src={post.coverImage}
               alt={post.coverImageAlt || post.title}
+              width={1200}
+              height={675}
               className="aspect-[16/9] w-full object-cover"
-              loading="lazy"
-              decoding="async"
+              priority
             />
           </div>
         )}
 
-        <div className="mt-8">
+        <div className="prose-article mt-8">
           <RichText html={post.content} />
         </div>
       </article>
 
       {related.length > 0 && (
         <section className="mx-auto max-w-6xl px-4 pb-20 sm:px-6">
-          <h2 className="mb-6 font-serif text-2xl font-semibold text-ink">
-            También te puede interesar
-          </h2>
+          <div className="mb-8 border-t border-brand-100 pt-10">
+            <span className="inline-flex items-center gap-2 rounded-full bg-brand-100/80 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-brand-700">
+              También te puede interesar
+            </span>
+          </div>
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {related.map((p) => (
-              <PostCard key={p.id} post={p} />
+            {related.map((p, i) => (
+              <div
+                key={p.id}
+                className="animate-slide-up"
+                style={{ animationDelay: `${i * 100}ms` }}
+              >
+                <PostCard post={p} />
+              </div>
             ))}
           </div>
         </section>

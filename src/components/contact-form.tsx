@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { CheckIcon, SendIcon } from "@/components/icons";
+import { Check, Send, Loader2 } from "lucide-react";
 
 type Status = "idle" | "loading" | "success" | "error";
 
@@ -41,20 +41,20 @@ export default function ContactForm() {
 
   if (status === "success") {
     return (
-      <div className="rounded-2xl border border-brand-200 bg-brand-50 p-6 text-center">
-        <span className="mx-auto grid h-12 w-12 place-items-center rounded-full bg-brand-700 text-white">
-          <CheckIcon className="h-6 w-6" />
+      <div className="rounded-2xl border border-brand-200 bg-brand-50/50 p-8 text-center animate-scale-in">
+        <span className="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-brand-700 text-white shadow-sm">
+          <Check className="h-7 w-7" />
         </span>
-        <h3 className="mt-4 font-serif text-xl font-semibold text-brand-900">
+        <h3 className="mt-5 font-serif text-xl font-semibold text-brand-900">
           ¡Mensaje enviado!
         </h3>
-        <p className="mt-2 text-sm text-brand-800">
+        <p className="mt-2 text-sm text-brand-700/80">
           Gracias por escribirme. Te voy a responder a la brevedad.
         </p>
         <button
           type="button"
           onClick={() => setStatus("idle")}
-          className="mt-5 text-sm font-semibold text-brand-700 underline-offset-2 hover:underline"
+          className="mt-5 text-sm font-semibold text-brand-700 transition-colors duration-200 hover:text-brand-800 underline-offset-4 hover:underline"
         >
           Enviar otro mensaje
         </button>
@@ -65,7 +65,7 @@ export default function ContactForm() {
   return (
     <form onSubmit={handleSubmit} className="space-y-4" noValidate>
       <div>
-        <label htmlFor="contact-name" className="mb-1.5 block text-sm font-medium text-ink">
+        <label htmlFor="contact-name" className="mb-1.5 block text-sm font-medium text-ink/80">
           Nombre
         </label>
         <input
@@ -75,12 +75,12 @@ export default function ContactForm() {
           onChange={(e) => setName(e.target.value)}
           required
           placeholder="Tu nombre"
-          className="w-full rounded-xl border border-ink/15 bg-white px-4 py-2.5 text-sm text-ink placeholder:text-ink/40 focus:border-brand-500 focus:outline-none"
+          className="w-full rounded-xl border border-brand-100 bg-white px-4 py-2.5 text-sm text-ink placeholder:text-ink/30 transition-all duration-200 focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100"
         />
       </div>
 
       <div>
-        <label htmlFor="contact-email" className="mb-1.5 block text-sm font-medium text-ink">
+        <label htmlFor="contact-email" className="mb-1.5 block text-sm font-medium text-ink/80">
           Email
         </label>
         <input
@@ -90,12 +90,12 @@ export default function ContactForm() {
           onChange={(e) => setEmail(e.target.value)}
           required
           placeholder="tucorreo@ejemplo.com"
-          className="w-full rounded-xl border border-ink/15 bg-white px-4 py-2.5 text-sm text-ink placeholder:text-ink/40 focus:border-brand-500 focus:outline-none"
+          className="w-full rounded-xl border border-brand-100 bg-white px-4 py-2.5 text-sm text-ink placeholder:text-ink/30 transition-all duration-200 focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100"
         />
       </div>
 
       <div>
-        <label htmlFor="contact-message" className="mb-1.5 block text-sm font-medium text-ink">
+        <label htmlFor="contact-message" className="mb-1.5 block text-sm font-medium text-ink/80">
           Mensaje
         </label>
         <textarea
@@ -105,30 +105,30 @@ export default function ContactForm() {
           required
           rows={5}
           placeholder="Contame en qué te puedo ayudar…"
-          className="w-full resize-y rounded-xl border border-ink/15 bg-white px-4 py-2.5 text-sm text-ink placeholder:text-ink/40 focus:border-brand-500 focus:outline-none"
+          className="w-full resize-y rounded-xl border border-brand-100 bg-white px-4 py-2.5 text-sm text-ink placeholder:text-ink/30 transition-all duration-200 focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100"
         />
       </div>
 
       {status === "error" && (
-        <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700" role="alert">
+        <div className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-600 ring-1 ring-red-100" role="alert">
           {error}
-        </p>
+        </div>
       )}
 
       <button
         type="submit"
         disabled={status === "loading"}
-        className="inline-flex items-center gap-2 rounded-full bg-brand-700 px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-800 disabled:cursor-not-allowed disabled:opacity-60"
+        className="inline-flex items-center gap-2 rounded-full bg-brand-700 px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-brand-800 hover:shadow-md active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
       >
         {status === "loading" ? (
           <>
-            <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white" />
+            <Loader2 className="h-4 w-4 animate-spin" />
             Enviando…
           </>
         ) : (
           <>
             Enviar mensaje
-            <SendIcon className="h-4 w-4" />
+            <Send className="h-4 w-4" />
           </>
         )}
       </button>
