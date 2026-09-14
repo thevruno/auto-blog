@@ -1,28 +1,31 @@
 import Link from "next/link";
+import Image from "next/image";
 import type { Post } from "@/db/schema";
 import { formatDate } from "@/lib/utils";
-import { ArrowRightIcon, ClockIcon } from "@/components/icons";
+import { ArrowRight, Clock } from "lucide-react";
 
 export default function PostCard({ post }: { post: Post }) {
   return (
-    <article className="group flex flex-col overflow-hidden rounded-2xl border border-ink/10 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+    <article className="group flex flex-col overflow-hidden rounded-2xl border border-brand-100/60 bg-white shadow-card transition-all duration-300 hover:-translate-y-1 hover:shadow-card-hover">
       <Link
         href={`/blog/${post.slug}`}
-        className="block aspect-[16/10] overflow-hidden bg-brand-100"
+        className="relative block aspect-[16/10] overflow-hidden bg-brand-50"
       >
         {post.coverImage ? (
-          <img
+          <Image
             src={post.coverImage}
             alt={post.coverImageAlt || post.title}
-            loading="lazy"
-            decoding="async"
-            className="h-full w-full object-cover transition duration-300 group-hover:scale-[1.03]"
+            fill
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.04]"
           />
         ) : (
-          <div className="grid h-full w-full place-items-center bg-brand-100 text-4xl">
-            📚
+          <div className="grid h-full w-full place-items-center bg-gradient-to-br from-brand-50 to-brand-100/50">
+            <span className="text-4xl opacity-40">📚</span>
           </div>
         )}
+        {/* Overlay sutil en hover */}
+        <div className="absolute inset-0 bg-gradient-to-t from-ink/10 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
       </Link>
 
       <div className="flex flex-1 flex-col p-5">
@@ -31,7 +34,7 @@ export default function PostCard({ post }: { post: Post }) {
             {post.tags.slice(0, 3).map((tag) => (
               <span
                 key={tag}
-                className="rounded-full bg-brand-50 px-2.5 py-0.5 text-xs font-medium text-brand-700"
+                className="rounded-full bg-brand-50 px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-brand-600"
               >
                 {tag}
               </span>
@@ -39,36 +42,35 @@ export default function PostCard({ post }: { post: Post }) {
           </div>
         )}
 
-        <h3 className="font-serif text-lg font-semibold leading-snug text-ink">
-          <Link
-            href={`/blog/${post.slug}`}
-            className="transition hover:text-brand-700"
-          >
+        <h3 className="font-serif text-lg font-semibold leading-snug text-ink transition-colors duration-200 group-hover:text-brand-700">
+          <Link href={`/blog/${post.slug}`}>
             {post.title}
           </Link>
         </h3>
 
-        <p className="mt-2 line-clamp-3 text-sm leading-relaxed text-ink/65">
+        <p className="mt-2 line-clamp-3 text-sm leading-relaxed text-ink/60">
           {post.excerpt}
         </p>
 
-        <div className="mt-4 flex items-center justify-between border-t border-ink/10 pt-4 text-xs text-ink/55">
-          <span>{formatDate(post.publishedAt)}</span>
-          {post.readingTime ? (
-            <span className="flex items-center gap-1">
-              <ClockIcon className="h-3.5 w-3.5" />
-              {post.readingTime} min
-            </span>
-          ) : null}
-        </div>
+        <div className="mt-auto">
+          <div className="mt-4 flex items-center justify-between border-t border-brand-100/60 pt-4 text-xs text-ink/50">
+            <span className="font-medium">{formatDate(post.publishedAt)}</span>
+            {post.readingTime ? (
+              <span className="flex items-center gap-1">
+                <Clock className="h-3.5 w-3.5" />
+                {post.readingTime} min
+              </span>
+            ) : null}
+          </div>
 
-        <Link
-          href={`/blog/${post.slug}`}
-          className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-brand-700 transition hover:gap-2.5"
-        >
-          Leer nota
-          <ArrowRightIcon className="h-4 w-4" />
-        </Link>
+          <Link
+            href={`/blog/${post.slug}`}
+            className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-brand-700 transition-all duration-200 hover:gap-2.5 hover:text-brand-800"
+          >
+            Leer nota
+            <ArrowRight className="h-4 w-4 transition-transform duration-200" />
+          </Link>
+        </div>
       </div>
     </article>
   );
