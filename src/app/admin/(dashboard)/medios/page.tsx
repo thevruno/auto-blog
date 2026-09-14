@@ -26,6 +26,7 @@ export default function MediaAdminPage() {
   const [loading, setLoading] = useState(true);
   const [q, setQ] = useState("");
   const [type, setType] = useState("");
+  const [status, setStatus] = useState("");
   const [toDelete, setToDelete] = useState<MediaItem | null>(null);
   const [deleting, setDeleting] = useState(false);
 
@@ -35,18 +36,32 @@ export default function MediaAdminPage() {
       const sp = new URLSearchParams();
       if (q) sp.set("q", q);
       if (type) sp.set("type", type);
+      if (status) sp.set("status", status);
       const res = await fetch(`/api/admin/media?${sp.toString()}`);
       const data = await res.json();
       setItems(data.items ?? []);
     } finally {
       setLoading(false);
     }
-  }, [q, type]);
+  }, [q, type, status]);
 
   useEffect(() => {
     const t = setTimeout(load, 250);
     return () => clearTimeout(t);
   }, [load]);
+
+  async function toggleStatus(item: MediaItem) {
+    const next = item.status === "published" ? "draft" : "published";
+    setItems((current) =>
+      current.map((row) => (row.id === item.id ? { ...row, status: next } : row)),
+    );
+    const res = await fetch(`/api/admin/media/${item.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: next }),
+    });
+    if (!res.ok) load();
+  }
 
   async function confirmDelete() {
     if (!toDelete) return;
@@ -91,6 +106,16 @@ export default function MediaAdminPage() {
           <option value="article">Notas escritas</option>
           <option value="podcast">Podcasts</option>
         </Select>
+        <Select
+          className="sm:w-44"
+          value={status}
+          onChange={(e) => setStatus(e.target.value)}
+          aria-label="Filtrar por estado"
+        >
+          <option value="">Publicados y borradores</option>
+          <option value="published">Publicados</option>
+          <option value="draft">Borradores</option>
+        </Select>
       </div>
 
       {loading ? (
@@ -126,10 +151,11 @@ export default function MediaAdminPage() {
               </div>
 
               <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                   <Badge tone={m.type === "video" ? "danger" : m.type === "podcast" ? "warning" : "info"}>
                     {TYPE_LABELS[m.type] ?? m.type}
                   </Badge>
+                  {m.status !== "published" && <Badge tone="warning">Borrador</Badge>}
                   <span className="truncate text-xs text-ink/50">{m.source}</span>
                 </div>
                 <p className="mt-1 truncate font-medium text-ink">{m.title}</p>
@@ -137,6 +163,13 @@ export default function MediaAdminPage() {
               </div>
 
               <div className="flex shrink-0 items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => toggleStatus(m)}
+                  className="rounded-lg px-3 py-2 text-sm font-medium text-ink/60 hover:bg-ink/5"
+                >
+                  {m.status === "published" ? "Pasar a borrador" : "Publicar"}
+                </button>
                 <Link
                   href={`/admin/medios/${m.id}`}
                   className="rounded-lg px-3 py-2 text-sm font-medium text-brand-700 hover:bg-brand-50"

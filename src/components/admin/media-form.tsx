@@ -43,6 +43,7 @@ export default function MediaForm({ initial }: { initial?: MediaItem | null }) {
     thumbnail: initial?.thumbnail ?? "",
     thumbnailAlt: initial?.thumbnailAlt ?? "",
     description: initial?.description ?? "",
+    status: initial?.status ?? "published",
   });
 
   const [saving, setSaving] = useState(false);
@@ -205,6 +206,21 @@ export default function MediaForm({ initial }: { initial?: MediaItem | null }) {
               }}
               placeholder="https://www.youtube.com/watch?v=…"
             />
+          </Field>
+
+          <Field
+            label="Estado en el sitio"
+            htmlFor="media-status"
+            hint="Los ítems importados desde el rastreo web entran como borrador."
+          >
+            <Select
+              id="media-status"
+              value={form.status}
+              onChange={(e) => patch({ status: e.target.value })}
+            >
+              <option value="published">Publicado</option>
+              <option value="draft">Borrador (no visible en el sitio)</option>
+            </Select>
           </Field>
 
           <Field label="Descripción breve" htmlFor="media-desc">

@@ -1,14 +1,21 @@
 import Link from "next/link";
-import { count, desc, eq } from "drizzle-orm";
+import { count, desc, eq, inArray } from "drizzle-orm";
 import { db } from "@/db";
-import { credentials, mediaItems, messages, posts } from "@/db/schema";
+import {
+  credentials,
+  discoveryLeads,
+  mediaItems,
+  messages,
+  posts,
+} from "@/db/schema";
+import { ensureSchemaSafe } from "@/db/bootstrap";
 import { formatDateTime } from "@/lib/utils";
 import { PageHeader } from "@/components/admin/ui";
 
 export const dynamic = "force-dynamic";
 
 export default async function DashboardPage() {
-  const [totalPosts, publishedPosts, totalMedia, totalMessages, unreadMessages, totalCredentials, recent] =
+  const [totalPosts, publishedPosts, totalMedia, totalMessages, unreadMessages, totalCredentials, recent, pendingLeads] =
     await Promise.all([
       db.select({ value: count() }).from(posts),
       db.select({ value: count() }).from(posts).where(eq(posts.status, "published")),
@@ -17,12 +24,20 @@ export default async function DashboardPage() {
       db.select({ value: count() }).from(messages).where(eq(messages.isRead, false)),
       db.select({ value: count() }).from(credentials),
       db.select().from(messages).orderBy(desc(messages.createdAt)).limit(5),
+      (async () => {
+        if (!(await ensureSchemaSafe())) return [{ value: 0 }];
+        return db
+          .select({ value: count() })
+          .from(discoveryLeads)
+          .where(inArray(discoveryLeads.status, ["new", "saved"]));
+      })(),
     ]);
 
   const stats = [
     { label: "Notas del blog", value: totalPosts[0]?.value ?? 0, href: "/admin/posts", icon: "📝" },
     { label: "Publicadas", value: publishedPosts[0]?.value ?? 0, href: "/admin/posts", icon: "✅" },
     { label: "Ítems de medios", value: totalMedia[0]?.value ?? 0, href: "/admin/medios", icon: "🎬" },
+    { label: "Hallazgos por revisar", value: pendingLeads[0]?.value ?? 0, href: "/admin/rastreo", icon: "🔎" },
     { label: "Mensajes sin leer", value: unreadMessages[0]?.value ?? 0, href: "/admin/mensajes", icon: "✉️" },
     { label: "Credenciales", value: totalCredentials[0]?.value ?? 0, href: "/admin/credenciales", icon: "🏆" },
   ];
@@ -107,6 +122,12 @@ export default async function DashboardPage() {
               className="rounded-lg bg-white px-4 py-3 text-center text-sm font-semibold text-brand-800 ring-1 ring-brand-200 transition hover:bg-brand-50"
             >
               + Nuevo ítem de medios
+            </Link>
+            <Link
+              href="/admin/rastreo"
+              className="rounded-lg bg-white px-4 py-3 text-center text-sm font-semibold text-brand-800 ring-1 ring-brand-200 transition hover:bg-brand-50"
+            >
+              🔎 Buscar menciones en internet
             </Link>
             <Link
               href="/admin/perfil"

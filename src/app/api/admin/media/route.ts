@@ -7,6 +7,7 @@ import { requireAdmin } from "@/lib/admin";
 export const dynamic = "force-dynamic";
 
 const TYPES = ["video", "article", "podcast"];
+const STATUSES = ["published", "draft"];
 
 function parseDate(raw: unknown): Date | null {
   if (raw && typeof raw === "string" && raw.length > 0) {
@@ -25,9 +26,11 @@ export async function GET(req: NextRequest) {
   const url = new URL(req.url);
   const q = url.searchParams.get("q")?.trim() ?? "";
   const type = url.searchParams.get("type") ?? "";
+  const status = url.searchParams.get("status") ?? "";
 
   const conditions: SQL[] = [];
   if (type) conditions.push(eq(mediaItems.type, type));
+  if (STATUSES.includes(status)) conditions.push(eq(mediaItems.status, status));
   if (q) {
     const like = `%${q}%`;
     conditions.push(
@@ -74,6 +77,7 @@ export async function POST(req: NextRequest) {
       thumbnail: body?.thumbnail ? String(body.thumbnail) : null,
       thumbnailAlt: body?.thumbnailAlt ? String(body.thumbnailAlt) : null,
       description: body?.description ? String(body.description) : null,
+      status: STATUSES.includes(String(body?.status)) ? String(body.status) : "published",
     })
     .returning();
 
