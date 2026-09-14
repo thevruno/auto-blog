@@ -7,6 +7,7 @@ import { requireAdmin } from "@/lib/admin";
 export const dynamic = "force-dynamic";
 
 const TYPES = ["video", "article", "podcast"];
+const STATUSES = ["published", "draft"];
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -83,10 +84,47 @@ export async function PUT(req: NextRequest, { params }: Params) {
       thumbnail: body?.thumbnail ? String(body.thumbnail) : null,
       thumbnailAlt: body?.thumbnailAlt ? String(body.thumbnailAlt) : null,
       description: body?.description ? String(body.description) : null,
+      status: STATUSES.includes(String(body?.status))
+        ? String(body.status)
+        : existing[0].status,
       updatedAt: new Date(),
     })
     .where(eq(mediaItems.id, parsed))
     .returning();
+
+  return NextResponse.json({ item: updated });
+}
+
+/** Cambio rápido de estado desde el listado: publicar u ocultar. */
+export async function PATCH(req: NextRequest, { params }: Params) {
+  const session = await requireAdmin();
+  if (!session) {
+    return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+  }
+  const { id } = await params;
+  const parsed = Number(id);
+  if (!Number.isInteger(parsed)) {
+    return NextResponse.json({ error: "ID inválido" }, { status: 400 });
+  }
+
+  const body = await req.json().catch(() => null);
+  const status = String(body?.status ?? "");
+  if (!STATUSES.includes(status)) {
+    return NextResponse.json(
+      { error: "Estado inválido: usá published o draft." },
+      { status: 400 },
+    );
+  }
+
+  const [updated] = await db
+    .update(mediaItems)
+    .set({ status, updatedAt: new Date() })
+    .where(eq(mediaItems.id, parsed))
+    .returning();
+
+  if (!updated) {
+    return NextResponse.json({ error: "No encontrado" }, { status: 404 });
+  }
 
   return NextResponse.json({ item: updated });
 }

@@ -9,6 +9,7 @@ const NAV = [
   { href: "/admin", label: "Inicio", icon: "🏠" },
   { href: "/admin/posts", label: "Notas del blog", icon: "📝" },
   { href: "/admin/medios", label: "Medios", icon: "🎬" },
+  { href: "/admin/rastreo", label: "Rastreo web", icon: "🔎" },
   { href: "/admin/mensajes", label: "Mensajes", icon: "✉️" },
   { href: "/admin/perfil", label: "Perfil", icon: "👤" },
   { href: "/admin/credenciales", label: "Credenciales", icon: "🏆" },
@@ -17,10 +18,12 @@ const NAV = [
 export default function AdminShell({
   user,
   unreadCount = 0,
+  newLeadsCount = 0,
   children,
 }: {
   user: { name: string; email: string };
   unreadCount?: number;
+  newLeadsCount?: number;
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
@@ -71,6 +74,11 @@ export default function AdminShell({
               {item.href === "/admin/mensajes" && unreadCount > 0 && (
                 <span className="rounded-full bg-accent-400 px-2 py-0.5 text-xs font-bold text-brand-950">
                   {unreadCount}
+                </span>
+              )}
+              {item.href === "/admin/rastreo" && newLeadsCount > 0 && (
+                <span className="rounded-full bg-accent-400 px-2 py-0.5 text-xs font-bold text-brand-950">
+                  {newLeadsCount}
                 </span>
               )}
             </Link>

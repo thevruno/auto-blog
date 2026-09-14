@@ -146,12 +146,29 @@ export async function getDistinctTags(): Promise<string[]> {
   return Array.from(set).sort((a, b) => a.localeCompare(b));
 }
 
+/**
+ * Apariciones en medios visibles en el sitio. Los ítems importados desde el
+ * rastreo web entran como borrador y no se publican hasta revisarlos.
+ */
 export async function getMediaItems(type?: string) {
-  return db
-    .select()
-    .from(mediaItems)
-    .where(type ? eq(mediaItems.type, type) : undefined)
-    .orderBy(desc(mediaItems.publishedAt));
+  const build = (onlyPublished: boolean) => {
+    const conditions: SQL[] = [];
+    if (type) conditions.push(eq(mediaItems.type, type));
+    if (onlyPublished) conditions.push(eq(mediaItems.status, "published"));
+    return db
+      .select()
+      .from(mediaItems)
+      .where(conditions.length > 0 ? and(...conditions) : undefined)
+      .orderBy(desc(mediaItems.publishedAt));
+  };
+
+  try {
+    return await build(true);
+  } catch (error) {
+    // Instalaciones sin la columna `status` todavía migrada: se muestra todo.
+    console.error("[queries] No se pudo filtrar medios por estado:", error);
+    return build(false);
+  }
 }
 
 export type { Post };

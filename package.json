@@ -6,7 +6,17 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "db:push": "drizzle-kit push --config=drizzle.config.ts",
+    "db:seed": "tsx src/db/seed.ts",
+    "check:discovery": "tsx scripts/check-discovery.ts",
+    "db:setup": "npm run db:push && npm run db:seed",
+    "db:verify": "tsx scripts/db-verify.ts",
+    "db:migrate": "tsx scripts/db-migrate.ts",
+    "check:storage": "tsx scripts/check-storage.ts",
+    "db:export": "tsx scripts/db-export.ts",
+    "db:import": "tsx scripts/db-import.ts",
+    "db:transfer": "npm run db:export && npm run db:import"
   },
   "dependencies": {
     "@tailwindcss/typography": "^0.5.20",
@@ -22,6 +32,7 @@
     "bcryptjs": "^3.0.3",
     "dotenv": "17.3.1",
     "drizzle-orm": "0.45.2",
+    "fast-xml-parser": "^5.11.1",
     "jose": "^6.2.12",
     "next": "16.2.6",
     "nodemailer": "^10.0.9",
