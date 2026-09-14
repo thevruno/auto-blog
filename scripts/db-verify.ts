@@ -8,7 +8,9 @@
  */
 import "../src/db/env";
 import { sql } from "drizzle-orm";
+import { Client } from "pg";
 import { db } from "../src/db";
+import { TABLES, describeUrl } from "../src/lib/db-transfer";
 
 const REQUIRED_TABLES = [
   "users",
@@ -89,6 +91,45 @@ async function main() {
       hasAdmin
         ? "\n✔ Usuario admin presente (admin@elenakuchimpos.com / elena2026)."
         : "\n✘ No existe el usuario admin → corré: npm run db:seed",
+    );
+  }
+
+  // Comparación opcional contra otra base (por ejemplo, la local vs Supabase):
+  //   COMPARE_WITH=postgresql://…  npm run db:verify
+  const compareWith = process.env.COMPARE_WITH ?? process.env.SOURCE_DATABASE_URL;
+  if (compareWith && missing.length === 0) {
+    console.log("\n=== Comparación de contenido ===");
+    console.log(`Referencia: ${describeUrl(compareWith)}`);
+    console.log(`Destino:    ${describeUrl(process.env.DATABASE_URL ?? "")}`);
+
+    const client = new Client({ connectionString: compareWith });
+    await client.connect();
+    let differences = 0;
+    try {
+      for (const table of TABLES) {
+        // jsonb ordena las claves: la comparación no depende del orden físico
+        // de las columnas.
+        const query = `select coalesce(md5(string_agg(x, '|' order by x)), 'vacio') as h
+                         from (select row_to_json(t)::jsonb::text as x from "${table}" t) s`;
+
+        const reference = (await client.query<{ h: string }>(query)).rows[0].h;
+        const current = (
+          (await db.execute(sql.raw(query))).rows[0] as { h: string }
+        ).h;
+        const same = reference === current;
+        if (!same) differences += 1;
+        console.log(
+          `  ${same ? "✔" : "✘"} ${table.padEnd(18)} ${reference.slice(0, 10)} / ${current.slice(0, 10)}`,
+        );
+      }
+    } finally {
+      await client.end().catch(() => undefined);
+    }
+
+    console.log(
+      differences === 0
+        ? "  → Contenido idéntico entre las dos bases ✅"
+        : `  → ${differences} tabla(s) con diferencias ⚠️`,
     );
   }
 

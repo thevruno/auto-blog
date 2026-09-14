@@ -1,5 +1,6 @@
 import "./src/db/env";
 import { defineConfig } from "drizzle-kit";
+import { normalizeDatabaseUrl } from "./src/lib/db-url";
 
 /**
  * Configuración de Drizzle Kit.
@@ -12,7 +13,7 @@ import { defineConfig } from "drizzle-kit";
  * para la app y `DIRECT_URL` el session pooler (puerto 5432) para las
  * migraciones, porque el pooler en modo transacción no soporta DDL.
  */
-const url = process.env.DIRECT_URL ?? process.env.DATABASE_URL;
+const url = normalizeDatabaseUrl(process.env.DIRECT_URL ?? process.env.DATABASE_URL);
 
 if (!url) {
   throw new Error(

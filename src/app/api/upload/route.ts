@@ -1,20 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
-import { randomBytes } from "crypto";
-import { mkdir, writeFile } from "fs/promises";
-import path from "path";
 import { requireAdmin } from "@/lib/admin";
+import {
+  ALLOWED_IMAGE_TYPES,
+  MAX_UPLOAD_BYTES,
+  saveUpload,
+  storageMode,
+} from "@/lib/storage";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
-
-const EXT_BY_TYPE: Record<string, string> = {
-  "image/jpeg": ".jpg",
-  "image/png": ".png",
-  "image/webp": ".webp",
-  "image/gif": ".gif",
-  "image/svg+xml": ".svg",
-  "image/avif": ".avif",
-};
 
 export async function POST(req: NextRequest) {
   const session = await requireAdmin();
@@ -32,20 +26,42 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const ext = EXT_BY_TYPE[file.type] ?? ".bin";
-  const buffer = Buffer.from(await file.arrayBuffer());
+  if (file.type && !(file.type in ALLOWED_IMAGE_TYPES)) {
+    return NextResponse.json(
+      { error: "Formato no permitido. Usá JPG, PNG, WebP, GIF, SVG o AVIF." },
+      { status: 400 },
+    );
+  }
 
-  if (buffer.length > 5 * 1024 * 1024) {
+  const buffer = Buffer.from(await file.arrayBuffer());
+  if (buffer.length > MAX_UPLOAD_BYTES) {
     return NextResponse.json(
       { error: "La imagen supera los 5 MB." },
       { status: 400 },
     );
   }
 
-  const name = `${randomBytes(10).toString("hex")}${ext}`;
-  const dir = path.join(process.cwd(), "storage", "uploads");
-  await mkdir(dir, { recursive: true });
-  await writeFile(path.join(dir, name), buffer);
-
-  return NextResponse.json({ url: `/api/uploads/${name}`, name });
+  try {
+    const stored = await saveUpload({
+      fileName: file.name || "imagen",
+      contentType: file.type || "application/octet-stream",
+      buffer,
+    });
+    return NextResponse.json({
+      url: stored.url,
+      name: stored.name,
+      storage: stored.storage,
+    });
+  } catch (error) {
+    return NextResponse.json(
+      {
+        error:
+          error instanceof Error
+            ? error.message
+            : "No se pudo guardar la imagen.",
+        storage: storageMode(),
+      },
+      { status: 500 },
+    );
+  }
 }

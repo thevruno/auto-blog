@@ -11,7 +11,12 @@
     "db:seed": "tsx src/db/seed.ts",
     "check:discovery": "tsx scripts/check-discovery.ts",
     "db:setup": "npm run db:push && npm run db:seed",
-    "db:verify": "tsx scripts/db-verify.ts"
+    "db:verify": "tsx scripts/db-verify.ts",
+    "db:migrate": "tsx scripts/db-migrate.ts",
+    "check:storage": "tsx scripts/check-storage.ts",
+    "db:export": "tsx scripts/db-export.ts",
+    "db:import": "tsx scripts/db-import.ts",
+    "db:transfer": "npm run db:export && npm run db:import"
   },
   "dependencies": {
     "@tailwindcss/typography": "^0.5.20",
