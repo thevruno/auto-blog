@@ -63,7 +63,7 @@ export default function LoginPage() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="admin@elenakuchimpos.com"
+                placeholder="tu@email.com"
               />
             </Field>
             <Field label="Contraseña" htmlFor="login-password">
@@ -88,11 +88,6 @@ export default function LoginPage() {
           <Button type="submit" disabled={loading} className="mt-5 w-full">
             {loading ? <Spinner className="h-4 w-4" /> : "Ingresar"}
           </Button>
-
-          <p className="mt-4 rounded-lg bg-brand-50 px-3 py-2 text-center text-xs text-brand-800">
-            Demo: <strong>admin@elenakuchimpos.com</strong> ·{" "}
-            <strong>elena2026</strong>
-          </p>
         </form>
 
         <p className="mt-4 text-center text-xs text-brand-300">

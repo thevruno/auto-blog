@@ -39,12 +39,20 @@ async function main() {
   }
 
   // --- Usuario administrador -------------------------------------------------
+  const adminEmail = process.env.ADMIN_EMAIL || "admin@elenakuchimpos.com";
+  const adminPassword = process.env.ADMIN_PASSWORD;
+  if (!adminPassword) {
+    throw new Error(
+      "ADMIN_PASSWORD is required. Set it in your .env.local before running seed.",
+    );
+  }
+
   await db.insert(users).values({
     name: "Elena Kuchimpos",
-    email: "admin@elenakuchimpos.com",
-    passwordHash: hashSync("elena2026", 10),
+    email: adminEmail,
+    passwordHash: hashSync(adminPassword, 10),
   });
-  console.log("✔ Usuario admin creado (admin@elenakuchimpos.com / elena2026)");
+  console.log(`✔ Usuario admin creado (${adminEmail})`);
 
   // --- Perfil del sitio -------------------------------------------------------
   await db.insert(siteProfile).values({

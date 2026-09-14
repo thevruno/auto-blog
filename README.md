@@ -26,8 +26,7 @@ npm run dev
 La base puede ser local o un Postgres administrado: los pasos con Supabase
 (incluido Supabase Storage para las imágenes) están en la sección siguiente.
 
-Acceso al panel: `/admin` → `admin@elenakuchimpos.com` / `elena2026`
-(cambiar la clave desde **Perfil** después del primer ingreso).
+Las credenciales del panel se generan con `npm run db:setup` (ver `src/db/seed.ts`).
 
 ### Scripts
 

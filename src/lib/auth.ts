@@ -1,9 +1,15 @@
 import { cookies } from "next/headers";
 import { jwtVerify, SignJWT } from "jose";
 
-const SECRET = new TextEncoder().encode(
-  process.env.SESSION_SECRET || "dev-secret-elenakuchimpos-cambiar-en-produccion",
-);
+function getSecret(): Uint8Array {
+  const secret = process.env.SESSION_SECRET;
+  if (!secret) {
+    throw new Error(
+      "SESSION_SECRET is required. Generate one with: openssl rand -hex 32",
+    );
+  }
+  return new TextEncoder().encode(secret);
+}
 const COOKIE_NAME = "ek_admin_session";
 
 export interface SessionPayload {
@@ -21,7 +27,7 @@ export async function createSession(payload: SessionPayload): Promise<void> {
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
     .setExpirationTime("7d")
-    .sign(SECRET);
+    .sign(getSecret());
 
   const cookieStore = await cookies();
   cookieStore.set(COOKIE_NAME, token, {
@@ -43,7 +49,7 @@ export async function getSession(): Promise<SessionPayload | null> {
   const token = cookieStore.get(COOKIE_NAME)?.value;
   if (!token) return null;
   try {
-    const { payload } = await jwtVerify(token, SECRET);
+    const { payload } = await jwtVerify(token, getSecret());
     return {
       userId: Number(payload.userId),
       email: String(payload.email ?? ""),

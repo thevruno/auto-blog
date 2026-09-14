@@ -89,7 +89,7 @@ async function main() {
     const hasAdmin = Number((admins.rows[0] as { total: number }).total) > 0;
     console.log(
       hasAdmin
-        ? "\n✔ Usuario admin presente (admin@elenakuchimpos.com / elena2026)."
+        ? "\n✔ Usuario admin presente."
         : "\n✘ No existe el usuario admin → corré: npm run db:seed",
     );
   }
