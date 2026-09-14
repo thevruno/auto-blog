@@ -13,7 +13,7 @@ import { normalizeDatabaseUrl } from "./src/lib/db-url";
  * para la app y `DIRECT_URL` el session pooler (puerto 5432) para las
  * migraciones, porque el pooler en modo transacción no soporta DDL.
  */
-const url = normalizeDatabaseUrl(process.env.DIRECT_URL ?? process.env.DATABASE_URL);
+const url = normalizeDatabaseUrl(process.env.DIRECT_URL || process.env.DATABASE_URL);
 
 if (!url) {
   throw new Error(

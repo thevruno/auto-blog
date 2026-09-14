@@ -34,6 +34,10 @@ export function normalizeDatabaseUrl(raw: string | undefined): string | undefine
     parsed.searchParams.set("sslmode", "require");
   }
 
+  if (managed && !parsed.searchParams.has("uselibpqcompat")) {
+    parsed.searchParams.set("uselibpqcompat", "true");
+  }
+
   return parsed.toString();
 }
 
