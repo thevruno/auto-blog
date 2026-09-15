@@ -60,16 +60,24 @@ export async function PUT(req: NextRequest) {
     .limit(1);
 
   let profile;
-  if (rows[0]) {
-    const [updated] = await db
-      .update(siteProfile)
-      .set({ ...values, updatedAt: new Date() })
-      .where(eq(siteProfile.id, rows[0].id))
-      .returning();
-    profile = updated;
-  } else {
-    const [inserted] = await db.insert(siteProfile).values(values).returning();
-    profile = inserted;
+  try {
+    if (rows[0]) {
+      const [updated] = await db
+        .update(siteProfile)
+        .set({ ...values, updatedAt: new Date() })
+        .where(eq(siteProfile.id, rows[0].id))
+        .returning();
+      profile = updated;
+    } else {
+      const [inserted] = await db.insert(siteProfile).values(values).returning();
+      profile = inserted;
+    }
+  } catch (err) {
+    console.error("[profile] DB error:", err);
+    return NextResponse.json(
+      { error: "Error al guardar en la base de datos." },
+      { status: 500 },
+    );
   }
 
   return NextResponse.json({ profile });

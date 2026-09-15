@@ -26,8 +26,8 @@ export const users = pgTable("users", {
 export const siteProfile = pgTable("site_profile", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
-  roleTitle: text("role_title").notNull(),
-  positioning: text("positioning").notNull(),
+  roleTitle: text("role_title"),
+  positioning: text("positioning"),
   heroPhoto: text("hero_photo"),
   heroPhotoAlt: text("hero_photo_alt"),
   bio: text("bio"),
