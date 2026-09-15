@@ -1,6 +1,11 @@
 import { randomBytes } from "crypto";
 import { mkdir, writeFile } from "fs/promises";
 import path from "path";
+import {
+  ALLOWED_IMAGE_TYPES,
+  MAX_IMAGE_BYTES,
+  allowedImageFormatsLabel,
+} from "./image-file";
 
 /**
  * Guardado de las imágenes que se suben desde el panel.
@@ -10,17 +15,12 @@ import path from "path";
  *   se crea solo la primera vez si no existe.
  * - Sin esas variables, se guardan en `storage/uploads` del servidor
  *   (comportamiento original, ideal para desarrollo).
+ *
+ * La lista de formatos aceptados vive en `./image-file`: se valida por los
+ * bytes del archivo y el SVG queda excluido a propósito (es un vector de XSS).
  */
-export const ALLOWED_IMAGE_TYPES: Record<string, string> = {
-  "image/jpeg": ".jpg",
-  "image/png": ".png",
-  "image/webp": ".webp",
-  "image/gif": ".gif",
-  "image/svg+xml": ".svg",
-  "image/avif": ".avif",
-};
-
-export const MAX_UPLOAD_BYTES = 5 * 1024 * 1024;
+export const MAX_UPLOAD_BYTES = MAX_IMAGE_BYTES;
+export { ALLOWED_IMAGE_TYPES, allowedImageFormatsLabel };
 
 export type StorageMode = "supabase" | "local";
 
@@ -168,9 +168,22 @@ export async function saveUpload({
   contentType,
   buffer,
 }: UploadInput): Promise<StoredFile> {
-  const ext =
-    ALLOWED_IMAGE_TYPES[contentType] ??
-    (path.extname(fileName).toLowerCase() || ".bin");
+  // El tipo llega ya validado por los bytes del archivo (ver `./image-file`).
+  // Si no está en la lista, se corta acá: nunca se usa la extensión del nombre,
+  // que es un dato que controla quien sube el archivo.
+  const ext = ALLOWED_IMAGE_TYPES[contentType];
+  if (!ext) {
+    throw new Error(
+      `No se pudo guardar «${fileName}»: tipo de archivo no permitido (${contentType}). Usá ${allowedImageFormatsLabel()}.`,
+    );
+  }
+
+  if (buffer.length > MAX_UPLOAD_BYTES) {
+    throw new Error(
+      `La imagen supera los ${Math.floor(MAX_UPLOAD_BYTES / (1024 * 1024))} MB.`,
+    );
+  }
+
   const name = randomFileName(ext);
 
   if (storageMode() === "supabase") {

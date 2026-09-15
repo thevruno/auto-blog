@@ -19,20 +19,39 @@ export default function MessagesPage() {
   const [toDelete, setToDelete] = useState<Message | null>(null);
   const [deleting, setDeleting] = useState(false);
 
+  const fetchList = useCallback(async (): Promise<Message[]> => {
+    const res = await fetch("/api/admin/messages");
+    const data = await res.json();
+    return data.items ?? [];
+  }, []);
+
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/admin/messages");
-      const data = await res.json();
-      setItems(data.items ?? []);
+      setItems(await fetchList());
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [fetchList]);
 
+  // Carga inicial sin `setState` sincrónico dentro del efecto, y sin pisar el
+  // estado si el componente ya se desmontó.
   useEffect(() => {
-    load();
-  }, [load]);
+    let alive = true;
+    fetchList()
+      .then((items) => {
+        if (alive) setItems(items);
+      })
+      .catch((error) => {
+        console.error("No se pudieron cargar los mensajes:", error);
+      })
+      .finally(() => {
+        if (alive) setLoading(false);
+      });
+    return () => {
+      alive = false;
+    };
+  }, [fetchList]);
 
   async function toggleRead(m: Message) {
     await fetch(`/api/admin/messages/${m.id}`, {

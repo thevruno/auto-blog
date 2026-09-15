@@ -23,10 +23,14 @@ export default function SiteHeader() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // Close mobile menu on navigation (back/forward, link clicks)
-  useEffect(() => {
-    setOpen(false);
-  }, [pathname]);
+  // El menú móvil se cierra al cambiar de ruta (click en un link o atrás/adelante).
+  // Se ajusta el estado durante el render en lugar de usar un efecto: es el
+  // patrón que recomienda React para "resetear estado cuando cambia un valor".
+  const [lastPathname, setLastPathname] = useState(pathname);
+  if (lastPathname !== pathname) {
+    setLastPathname(pathname);
+    if (open) setOpen(false);
+  }
 
   useEffect(() => {
     document.body.style.overflow = open ? "hidden" : "";

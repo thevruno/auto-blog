@@ -195,11 +195,19 @@ export default function ProfilePage() {
             </h2>
             <ImageField
               label="Foto para el hero"
+              hint="El sitio la muestra en formato retrato 4:5 (400 × 500). Después de elegir el archivo vas a poder ajustar el encuadre."
               value={form.heroPhoto}
               onChange={(url) => patch({ heroPhoto: url })}
               alt={form.heroPhotoAlt}
               onAltChange={(alt) => patch({ heroPhotoAlt: alt })}
               altRequired
+              crop={{
+                aspect: 4 / 5,
+                outputWidth: 800,
+                title: "Ajustá el encuadre de tu foto",
+                description:
+                  "El sitio muestra la foto en formato retrato 4:5, así que acá elegís qué parte se ve. Arrastrá la imagen para moverla y usá el zoom para acercarla.",
+              }}
             />
           </div>
         </div>

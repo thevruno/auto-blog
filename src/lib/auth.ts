@@ -1,11 +1,25 @@
 import { cookies } from "next/headers";
 import { jwtVerify, SignJWT } from "jose";
 
+/**
+ * Largo mínimo exigido al secreto de sesión.
+ *
+ * Los tokens se firman con HS256: con un secreto corto (o adivinable) se puede
+ * firmar un token propio y entrar al panel, así que se exige el equivalente a
+ * 32 bytes de entropía, que es lo que genera `openssl rand -hex 32`.
+ */
+const MIN_SECRET_LENGTH = 32;
+
 function getSecret(): Uint8Array {
   const secret = process.env.SESSION_SECRET;
   if (!secret) {
     throw new Error(
       "SESSION_SECRET is required. Generate one with: openssl rand -hex 32",
+    );
+  }
+  if (secret.length < MIN_SECRET_LENGTH) {
+    throw new Error(
+      `SESSION_SECRET es demasiado corto (${secret.length} caracteres). Usá al menos ${MIN_SECRET_LENGTH}: openssl rand -hex 32`,
     );
   }
   return new TextEncoder().encode(secret);

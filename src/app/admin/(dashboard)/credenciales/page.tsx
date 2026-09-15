@@ -41,20 +41,39 @@ export default function CredentialsPage() {
   const [toDelete, setToDelete] = useState<Credential | null>(null);
   const [deleting, setDeleting] = useState(false);
 
+  const fetchList = useCallback(async (): Promise<Credential[]> => {
+    const res = await fetch("/api/admin/credentials");
+    const data = await res.json();
+    return data.items ?? [];
+  }, []);
+
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/admin/credentials");
-      const data = await res.json();
-      setItems(data.items ?? []);
+      setItems(await fetchList());
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [fetchList]);
 
+  // La carga inicial se hace sin `setState` sincrónico dentro del efecto
+  // (React lo desaconseja) y sin pisar el estado si el componente se desmontó.
   useEffect(() => {
-    load();
-  }, [load]);
+    let alive = true;
+    fetchList()
+      .then((items) => {
+        if (alive) setItems(items);
+      })
+      .catch((error) => {
+        console.error("No se pudieron cargar las credenciales:", error);
+      })
+      .finally(() => {
+        if (alive) setLoading(false);
+      });
+    return () => {
+      alive = false;
+    };
+  }, [fetchList]);
 
   function startNew() {
     setDraft(EMPTY_DRAFT);

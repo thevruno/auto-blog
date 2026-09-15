@@ -111,15 +111,22 @@ async function main() {
       `${uploaded[0]?.bytes} bytes · ${uploaded[0]?.contentType}`,
     );
 
-    const invalid = await saveUpload({
-      fileName: "raro.bin",
-      contentType: "application/octet-stream",
-      buffer: Buffer.from("x"),
-    });
+    // El tipo se valida por los bytes del archivo (ver src/lib/image-file.ts):
+    // un tipo fuera de la lista blanca no se guarda.
+    let rejected = "";
+    try {
+      await saveUpload({
+        fileName: "raro.bin",
+        contentType: "application/octet-stream",
+        buffer: Buffer.from("x"),
+      });
+    } catch (error) {
+      rejected = error instanceof Error ? error.message : String(error);
+    }
     check(
-      "Respeta la extensión enviada cuando el tipo no está en la lista",
-      Boolean(invalid.name) && invalid.name.endsWith(".bin"),
-      invalid.name,
+      "Rechaza un tipo que no está en la lista permitida",
+      rejected.includes("no permitido"),
+      rejected,
     );
 
     failNextUpload = true;
