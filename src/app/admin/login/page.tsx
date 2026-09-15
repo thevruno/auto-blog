@@ -95,6 +95,10 @@ export default function LoginPage() {
             ← Volver al sitio público
           </a>
         </p>
+
+        <p className="mt-2 text-center text-xs text-brand-400">
+          Demo: admin@elenakuchimpos.com / Supersecreto2020
+        </p>
       </div>
     </main>
   );
