@@ -2,6 +2,10 @@
 
 import { useRef, useState } from "react";
 import { Button, Field, Input, Spinner } from "@/components/admin/ui";
+import ImageCropper, { type CropSettings } from "@/components/admin/image-cropper";
+
+/** Alto de la previsualización, en píxeles. */
+const PREVIEW_HEIGHT = 96;
 
 export default function ImageField({
   label,
@@ -11,6 +15,7 @@ export default function ImageField({
   onAltChange,
   altRequired = false,
   hint,
+  crop,
 }: {
   label: string;
   value: string;
@@ -19,14 +24,20 @@ export default function ImageField({
   onAltChange: (alt: string) => void;
   altRequired?: boolean;
   hint?: string;
+  /**
+   * Si se indica, al elegir un archivo se abre el recortador con este encuadre
+   * antes de subir la imagen. La previsualización respeta la misma proporción,
+   * para que se vea igual que en el sitio.
+   */
+  crop?: CropSettings;
 }) {
   const fileRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
+  const [pendingFile, setPendingFile] = useState<File | null>(null);
 
-  async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  /** Sube el archivo y devuelve el error hacia arriba si falla. */
+  async function upload(file: File) {
     setUploading(true);
     setError("");
     try {
@@ -38,21 +49,59 @@ export default function ImageField({
       onChange(data.url);
       if (!alt) onAltChange(file.name.replace(/\.[^.]+$/, ""));
     } catch (err) {
-      setError(err instanceof Error ? err.message : "No se pudo subir la imagen");
+      const message =
+        err instanceof Error ? err.message : "No se pudo subir la imagen";
+      setError(message);
+      throw new Error(message);
     } finally {
       setUploading(false);
-      if (fileRef.current) fileRef.current.value = "";
     }
   }
 
+  async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (fileRef.current) fileRef.current.value = "";
+    if (!file) return;
+
+    if (crop) {
+      setError("");
+      setPendingFile(file);
+      return;
+    }
+
+    await upload(file).catch(() => {
+      // El mensaje ya quedó guardado en `error`.
+    });
+  }
+
+  async function confirmCrop(cropped: File) {
+    await upload(cropped);
+    setPendingFile(null);
+  }
+
+  const previewWidth = crop
+    ? Math.round(PREVIEW_HEIGHT * crop.aspect)
+    : 144;
+
   return (
     <div className="space-y-3">
-      <Field label={label} hint={hint}>
+      <Field
+        label={label}
+        hint={
+          hint ??
+          (crop
+            ? `Después de elegir el archivo vas a poder ajustar el encuadre ${crop.aspect === 1 ? "cuadrado" : "de la foto"}.`
+            : undefined)
+        }
+      >
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start">
           <div className="flex items-center gap-3">
-            <div className="grid h-24 w-36 shrink-0 place-items-center overflow-hidden rounded-lg border border-ink/15 bg-cream text-3xl">
+            <div
+              className="grid shrink-0 place-items-center overflow-hidden rounded-lg border border-ink/15 bg-cream text-3xl"
+              style={{ width: previewWidth, height: PREVIEW_HEIGHT }}
+            >
               {value ? (
-                // eslint-disable-next-line @next/next/no-img-element
+                // eslint-disable-next-line @next/next/no-img-element -- previsualización del archivo subido (puede venir de Supabase, del disco o de una URL externa).
                 <img
                   src={value}
                   alt=""
@@ -90,7 +139,7 @@ export default function ImageField({
         <input
           ref={fileRef}
           type="file"
-          accept="image/*"
+          accept="image/png,image/jpeg,image/webp,image/gif,image/avif"
           className="hidden"
           onChange={handleFile}
         />
@@ -108,6 +157,15 @@ export default function ImageField({
           placeholder="Ej.: Elena Kuchimpos en una entrevista televisiva"
         />
       </Field>
+
+      {pendingFile && crop && (
+        <ImageCropper
+          file={pendingFile}
+          settings={crop}
+          onCancel={() => setPendingFile(null)}
+          onConfirm={confirmCrop}
+        />
+      )}
     </div>
   );
 }
