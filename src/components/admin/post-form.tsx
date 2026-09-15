@@ -83,10 +83,26 @@ export default function PostForm({ initial }: { initial?: Post | null }) {
     patch(next);
   }
 
-  const isScheduled =
-    value.status === "published" &&
-    value.publishedAt &&
-    new Date(value.publishedAt).getTime() > Date.now();
+  // "Programada" depende de la hora actual, así que se calcula fuera del
+  // render: el primer chequeo sale en un timeout y después se refresca solo,
+  // de modo que la etiqueta desaparece cuando la fecha ya pasó.
+  const [isScheduled, setIsScheduled] = useState(false);
+
+  useEffect(() => {
+    const check = () =>
+      setIsScheduled(
+        value.status === "published" &&
+          Boolean(value.publishedAt) &&
+          new Date(value.publishedAt).getTime() > Date.now(),
+      );
+
+    const first = setTimeout(check, 0);
+    const timer = setInterval(check, 30_000);
+    return () => {
+      clearTimeout(first);
+      clearInterval(timer);
+    };
+  }, [value.status, value.publishedAt]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();

@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  verificar:
+    name: Typecheck, lint, pruebas, build y auditoría
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Lint (0 errores y 0 warnings)
+        run: npm run lint
+
+      - name: Pruebas
+        run: npm test
+        env:
+          # Si el repositorio no tiene el secreto, las 2 pruebas de integración
+          # se saltean y el resto corre igual.
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+      - name: Build
+        run: npm run build
+        env:
+          NEXT_PUBLIC_SITE_URL: https://elenakuchimpos.com
+
+      - name: Auditoría de dependencias (0 vulnerabilidades)
+        run: npm audit

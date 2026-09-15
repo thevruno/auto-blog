@@ -36,6 +36,7 @@ Las credenciales del panel se generan con `npm run db:setup` (ver `src/db/seed.t
 | `npm run build` / `npm start` | Build y ejecución en producción |
 | `npm run typecheck` | Verificación de tipos |
 | `npm run lint` | ESLint |
+| `npm test` | Pruebas unitarias (Vitest). Con `DATABASE_URL` también corre las de integración |
 | `npm run db:push` | Sincroniza el esquema de Drizzle con la base |
 | `npm run db:seed` | Carga contenido inicial si la base está vacía |
 | `npm run db:setup` | `db:push` + `db:seed` (puesta en marcha en un paso) |
@@ -45,6 +46,14 @@ Las credenciales del panel se generan con `npm run db:setup` (ver `src/db/seed.t
 | `npm run db:migrate` | Copia base → base (útil para pasar de local a Supabase) |
 | `npm run check:storage` | Prueba las subidas (Supabase Storage simulado + modo local) |
 | `npm run check:discovery` | Prueba del rastreador web con respuestas simuladas |
+
+Las pruebas viven en `tests/`: los módulos puros (`security`, `rate-limit`,
+`image-file`, `sanitizeHtml`, …) y los endpoints (`/api/upload`,
+`/api/auth/login`, `/api/contact`, …) con la base simulada. Las 2 pruebas de
+integración contra Postgres se saltean solas si no hay `DATABASE_URL`.
+
+Cada push y cada PR corren typecheck, lint, pruebas, build y `npm audit` en
+`.github/workflows/ci.yml`.
 
 > El esquema también se auto-repara en tiempo de ejecución
 > (`src/db/bootstrap.ts`): si una instalación no corrió `db:push`, las tablas del

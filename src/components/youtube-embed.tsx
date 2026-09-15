@@ -32,6 +32,7 @@ export default function YoutubeEmbed({
           aria-label={`Reproducir video: ${title}`}
         >
           {thumbnail ? (
+            // eslint-disable-next-line @next/next/no-img-element -- la miniatura viene de la fuente original (YouTube, Pexels o cualquier sitio rastreado), así que no se puede optimizar con next/image sin listar cada dominio.
             <img
               src={thumbnail}
               alt={title}

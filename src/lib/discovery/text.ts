@@ -25,6 +25,14 @@ const ENTITIES: Record<string, string> = {
   bull: "•",
   times: "×",
   eacute: "é",
+  aacute: "á",
+  iacute: "í",
+  oacute: "ó",
+  uacute: "ú",
+  uuml: "ü",
+  ntilde: "ñ",
+  iexcl: "¡",
+  iquest: "¿",
   enie: "ñ",
 };
 

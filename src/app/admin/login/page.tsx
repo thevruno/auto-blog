@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button, Field, Input, Spinner } from "@/components/admin/ui";
@@ -91,9 +92,9 @@ export default function LoginPage() {
         </form>
 
         <p className="mt-4 text-center text-xs text-brand-300">
-          <a href="/" className="hover:text-white">
+          <Link href="/" className="hover:text-white">
             ← Volver al sitio público
-          </a>
+          </Link>
         </p>
 
         <p className="mt-2 text-center text-xs text-brand-400">
