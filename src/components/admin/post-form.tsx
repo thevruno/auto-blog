@@ -8,6 +8,7 @@ import { Button, ConfirmDialog, Field, Input, PageHeader, Select, Spinner, Texta
 import RichTextEditor from "@/components/admin/rich-text-editor";
 import ImageField from "@/components/admin/image-field";
 import { useDraft } from "@/components/admin/use-draft";
+import { ChevronDown, ChevronUp } from "lucide-react";
 
 type FormState = {
   title: string;
@@ -63,6 +64,7 @@ export default function PostForm({ initial }: { initial?: Post | null }) {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [error, setError] = useState("");
   const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [seoOpen, setSeoOpen] = useState(true);
   const slugTouched = useRef(Boolean(initial?.slug));
 
   useEffect(() => {
@@ -206,8 +208,8 @@ export default function PostForm({ initial }: { initial?: Post | null }) {
         </div>
       )}
 
-      <div className="grid gap-6 lg:grid-cols-[1.6fr_1fr]">
-        <div className="space-y-6">
+      <div className="grid gap-6 lg:grid-cols-[1fr_380px]">
+        <div className="space-y-6 min-w-0">
           <div className="rounded-2xl border border-ink/10 bg-white p-6">
             <div className="space-y-4">
               <Field label="Título" htmlFor="post-title" required>
@@ -282,16 +284,18 @@ export default function PostForm({ initial }: { initial?: Post | null }) {
 
               <div>
                 <p className="mb-2 text-sm font-medium text-ink">Contenido</p>
-                <RichTextEditor
-                  value={value.content}
-                  onChange={(html) => patch({ content: html })}
-                />
+                <div className="min-h-[400px]">
+                  <RichTextEditor
+                    value={value.content}
+                    onChange={(html) => patch({ content: html })}
+                  />
+                </div>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="space-y-6">
+        <div className="space-y-6 lg:sticky lg:top-6 lg:self-start">
           <div className="rounded-2xl border border-ink/10 bg-white p-6">
             <h2 className="mb-4 font-serif text-lg font-semibold text-ink">
               Publicación
@@ -347,53 +351,70 @@ export default function PostForm({ initial }: { initial?: Post | null }) {
             />
           </div>
 
-          <div className="rounded-2xl border border-ink/10 bg-white p-6">
-            <h2 className="mb-1 font-serif text-lg font-semibold text-ink">
-              SEO
-            </h2>
-            <p className="mb-4 text-xs text-ink/50">
-              Así se verá esta nota en los resultados de búsqueda.
-            </p>
+          <div className="rounded-2xl border border-ink/10 bg-white overflow-hidden">
+            <button
+              type="button"
+              onClick={() => setSeoOpen(!seoOpen)}
+              className="flex w-full items-center justify-between p-6 pb-0 text-left"
+            >
+              <div>
+                <h2 className="font-serif text-lg font-semibold text-ink">
+                  SEO
+                </h2>
+                <p className="mt-0.5 text-xs text-ink/50">
+                  Así se verá esta nota en los resultados de búsqueda.
+                </p>
+              </div>
+              {seoOpen ? (
+                <ChevronUp className="h-5 w-5 flex-shrink-0 text-ink/40" />
+              ) : (
+                <ChevronDown className="h-5 w-5 flex-shrink-0 text-ink/40" />
+              )}
+            </button>
 
-            <div className="mb-4 rounded-lg border border-ink/10 bg-white p-3 shadow-sm">
-              <p className="truncate text-xs text-ink/40">
-                {origin}/blog/{value.slug || "…"}
-              </p>
-              <p className="text-[#1a0dab] text-base leading-snug">
-                {value.metaTitle || value.title || "Título de la nota"}
-              </p>
-              <p className="line-clamp-2 text-sm text-ink/60">
-                {value.metaDescription || value.excerpt || "Descripción de la nota…"}
-              </p>
-            </div>
+            {seoOpen && (
+              <div className="p-6 pt-4">
+                <div className="mb-4 rounded-lg border border-ink/10 bg-ink/[0.02] p-3">
+                  <p className="truncate text-xs text-ink/40">
+                    {origin}/blog/{value.slug || "…"}
+                  </p>
+                  <p className="text-[#1a0dab] text-base leading-snug">
+                    {value.metaTitle || value.title || "Título de la nota"}
+                  </p>
+                  <p className="line-clamp-2 text-sm text-ink/60">
+                    {value.metaDescription || value.excerpt || "Descripción de la nota…"}
+                  </p>
+                </div>
 
-            <div className="space-y-4">
-              <Field
-                label={`Meta título (${value.metaTitle.length}/60)`}
-                htmlFor="post-meta-title"
-              >
-                <Input
-                  id="post-meta-title"
-                  value={value.metaTitle}
-                  onChange={(e) => patch({ metaTitle: e.target.value.slice(0, 70) })}
-                  placeholder="Título optimizado para buscadores"
-                />
-              </Field>
-              <Field
-                label={`Meta descripción (${value.metaDescription.length}/155)`}
-                htmlFor="post-meta-desc"
-              >
-                <Textarea
-                  id="post-meta-desc"
-                  rows={3}
-                  value={value.metaDescription}
-                  onChange={(e) =>
-                    patch({ metaDescription: e.target.value.slice(0, 170) })
-                  }
-                  placeholder="Descripción breve y atractiva para buscadores"
-                />
-              </Field>
-            </div>
+                <div className="space-y-4">
+                  <Field
+                    label={`Meta título (${value.metaTitle.length}/60)`}
+                    htmlFor="post-meta-title"
+                  >
+                    <Input
+                      id="post-meta-title"
+                      value={value.metaTitle}
+                      onChange={(e) => patch({ metaTitle: e.target.value.slice(0, 70) })}
+                      placeholder="Título optimizado para buscadores"
+                    />
+                  </Field>
+                  <Field
+                    label={`Meta descripción (${value.metaDescription.length}/155)`}
+                    htmlFor="post-meta-desc"
+                  >
+                    <Textarea
+                      id="post-meta-desc"
+                      rows={3}
+                      value={value.metaDescription}
+                      onChange={(e) =>
+                        patch({ metaDescription: e.target.value.slice(0, 170) })
+                      }
+                      placeholder="Descripción breve y atractiva para buscadores"
+                    />
+                  </Field>
+                </div>
+              </div>
+            )}
           </div>
 
           {isEdit && (
