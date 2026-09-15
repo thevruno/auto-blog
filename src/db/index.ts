@@ -1,11 +1,16 @@
 import { drizzle } from "drizzle-orm/node-postgres";
-import { Pool } from "pg";
+import { Pool, type PoolConfig } from "pg";
 import { normalizeDatabaseUrl } from "@/lib/db-url";
 
 const globalForDb = globalThis as typeof globalThis & {
   __arenaNextJsPostgresqlPool?: InstanceType<typeof Pool>;
   __arenaNextJsDb?: ReturnType<typeof drizzle>;
 };
+
+// pg types don't include prepareThreshold but the runtime supports it
+interface PgPoolConfig extends PoolConfig {
+  prepareThreshold?: number;
+}
 
 function createPool() {
   if (globalForDb.__arenaNextJsPostgresqlPool) {
@@ -17,12 +22,17 @@ function createPool() {
     throw new Error("DATABASE_URL is required");
   }
 
-  const pool = new Pool({
+  const config: PgPoolConfig = {
     connectionString: databaseUrl,
     max: 5,
     idleTimeoutMillis: 10_000,
     connectionTimeoutMillis: 15_000,
-  });
+  };
+  // pgbouncer (transaction pooler 6543) no soporta prepared statements
+  if (databaseUrl.includes("6543")) {
+    config.prepareThreshold = 0;
+  }
+  const pool = new Pool(config);
   if (process.env.NODE_ENV !== "production") {
     globalForDb.__arenaNextJsPostgresqlPool = pool;
   }
