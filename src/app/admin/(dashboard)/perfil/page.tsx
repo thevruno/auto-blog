@@ -105,7 +105,7 @@ export default function ProfilePage() {
       }
       setSaving(false);
       setSaved(true);
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      // No hacer scroll automático para evitar que el foco salte al primer input
     } catch {
       setError("Error de conexión al guardar.");
       setSaving(false);

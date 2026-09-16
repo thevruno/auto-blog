@@ -94,46 +94,36 @@ export default function ImageField({
             : undefined)
         }
       >
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-start">
-          <div className="flex items-center gap-3">
-            <div
-              className="grid shrink-0 place-items-center overflow-hidden rounded-lg border border-ink/15 bg-cream text-3xl"
-              style={{ width: previewWidth, height: PREVIEW_HEIGHT }}
-            >
-              {value ? (
-                // eslint-disable-next-line @next/next/no-img-element -- previsualización del archivo subido (puede venir de Supabase, del disco o de una URL externa).
-                <img
-                  src={value}
-                  alt=""
-                  className="h-full w-full object-cover"
-                />
-              ) : (
-                <span aria-hidden="true">🖼️</span>
-              )}
-            </div>
-            <div className="flex flex-col gap-2">
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={() => fileRef.current?.click()}
-                disabled={uploading}
-              >
-                {uploading ? <Spinner className="h-4 w-4" /> : "Subir imagen"}
-              </Button>
-              {value && (
-                <Button type="button" variant="ghost" onClick={() => onChange("")}>
-                  Quitar
-                </Button>
-              )}
-            </div>
+        <div className="flex items-center gap-3">
+          <div
+            className="grid shrink-0 place-items-center overflow-hidden rounded-lg border border-ink/15 bg-cream text-3xl"
+            style={{ width: previewWidth, height: PREVIEW_HEIGHT }}
+          >
+            {value ? (
+              // eslint-disable-next-line @next/next/no-img-element -- previsualización del archivo subido (puede venir de Supabase, del disco o de una URL externa).
+              <img
+                src={value}
+                alt=""
+                className="h-full w-full object-cover"
+              />
+            ) : (
+              <span aria-hidden="true">🖼️</span>
+            )}
           </div>
-          <div className="flex-1">
-            <Input
-              type="url"
-              placeholder="…o pegá una URL de imagen"
-              value={value}
-              onChange={(e) => onChange(e.target.value)}
-            />
+          <div className="flex flex-col gap-2">
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => fileRef.current?.click()}
+              disabled={uploading}
+            >
+              {uploading ? <Spinner className="h-4 w-4" /> : "Subir imagen"}
+            </Button>
+            {value && (
+              <Button type="button" variant="ghost" onClick={() => onChange("")}>
+                Quitar
+              </Button>
+            )}
           </div>
         </div>
         <input
