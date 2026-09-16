@@ -332,6 +332,34 @@ export function formatDateTime(
   }).format(date);
 }
 
+export function timeAgo(
+  input: Date | string | number | null | undefined,
+): string {
+  if (!input) return "";
+  const date =
+    typeof input === "string" || typeof input === "number"
+      ? new Date(input)
+      : input;
+  if (Number.isNaN(date.getTime())) return "";
+
+  const now = Date.now();
+  const diff = now - date.getTime();
+  const seconds = Math.floor(diff / 1000);
+  const minutes = Math.floor(seconds / 60);
+  const hours = Math.floor(minutes / 60);
+  const days = Math.floor(hours / 24);
+  const weeks = Math.floor(days / 7);
+
+  if (minutes < 1) return "publicado recién";
+  if (minutes < 60) return `hace ${minutes} min`;
+  if (hours === 1) return "hace 1 hora";
+  if (hours < 24) return `hace ${hours} horas`;
+  if (days === 1) return "hace 1 día";
+  if (weeks < 1) return `hace ${days} días`;
+  if (weeks === 1) return "hace 1 semana";
+  return `hace ${weeks} semanas`;
+}
+
 export function absoluteUrl(path = ""): string {
   const base = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
   const clean = base.replace(/\/+$/, "");

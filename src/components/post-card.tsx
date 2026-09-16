@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import type { Post } from "@/db/schema";
-import { formatDate } from "@/lib/utils";
+import { formatDate, timeAgo } from "@/lib/utils";
 import { ArrowRight, Clock } from "lucide-react";
 
 export default function PostCard({ post }: { post: Post }) {
@@ -53,13 +53,18 @@ export default function PostCard({ post }: { post: Post }) {
         </p>
 
         <div className="mt-auto">
-          <div className="mt-4 flex items-center justify-between border-t border-brand-100/60 pt-4 text-xs text-ink/50">
-            <span className="font-medium">{formatDate(post.publishedAt)}</span>
+          <div className="mt-4 border-t border-brand-100/60 pt-4 text-xs text-ink/50">
+            <div className="flex items-center justify-between gap-2">
+              <span className="truncate font-medium">{formatDate(post.publishedAt)}</span>
+              {post.publishedAt && (
+                <span className="shrink-0 text-ink/40">{timeAgo(post.publishedAt)}</span>
+              )}
+            </div>
             {post.readingTime ? (
-              <span className="flex items-center gap-1">
-                <Clock className="h-3.5 w-3.5" />
-                {post.readingTime} min
-              </span>
+              <div className="mt-1.5 flex items-center gap-1 text-ink/40">
+                <Clock className="h-3 w-3 shrink-0" />
+                <span>{post.readingTime} min de lectura</span>
+              </div>
             ) : null}
           </div>
 

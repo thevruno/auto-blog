@@ -7,7 +7,7 @@ import {
   getRelatedPosts,
   getSiteProfile,
 } from "@/lib/queries";
-import { absoluteUrl, formatDate } from "@/lib/utils";
+import { absoluteUrl, formatDate, timeAgo } from "@/lib/utils";
 import RichText from "@/components/rich-text";
 import PostCard from "@/components/post-card";
 import { Calendar, Clock, Tag, ChevronRight } from "lucide-react";
@@ -159,6 +159,9 @@ export default async function PostPage({
               <Calendar className="h-4 w-4" />
               {formatDate(post.publishedAt)}
             </span>
+            {post.publishedAt && (
+              <span className="text-ink/40">{timeAgo(post.publishedAt)}</span>
+            )}
             {post.readingTime ? (
               <span className="flex items-center gap-1.5">
                 <Clock className="h-4 w-4" />

@@ -5,18 +5,18 @@
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, sans-serif;
   --font-serif: var(--font-fraunces), ui-serif, Georgia, serif;
 
-  /* Verde profundo / petróleo — principal (refinado) */
-  --color-brand-50: #f0f8f7;
-  --color-brand-100: #d6eeeb;
-  --color-brand-200: #aedcda;
-  --color-brand-300: #7ec5c1;
-  --color-brand-400: #52a9a5;
-  --color-brand-500: #3a8d8a;
-  --color-brand-600: #2e716f;
-  --color-brand-700: #285c5a;
-  --color-brand-800: #234a49;
-  --color-brand-900: #1f3e3d;
-  --color-brand-950: #0d2323;
+  /* Azul profundo — principal */
+  --color-brand-50: #f0f5fa;
+  --color-brand-100: #dce8f5;
+  --color-brand-200: #b8d1eb;
+  --color-brand-300: #8bb4dc;
+  --color-brand-400: #5a93c9;
+  --color-brand-500: #3a78b5;
+  --color-brand-600: #2d6099;
+  --color-brand-700: #264e7d;
+  --color-brand-800: #214168;
+  --color-brand-900: #1e3758;
+  --color-brand-950: #132440;
 
   /* Ámbar cálido — acento (refinado) */
   --color-accent-50: #fef9ee;
@@ -37,7 +37,7 @@
   --shadow-card: 0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.03);
   --shadow-card-hover: 0 4px 16px rgba(0,0,0,0.08), 0 8px 32px rgba(0,0,0,0.04);
   --shadow-elevated: 0 8px 30px rgba(0,0,0,0.08), 0 16px 60px rgba(0,0,0,0.06);
-  --shadow-glow-brand: 0 0 20px rgba(58,141,138,0.15);
+  --shadow-glow-brand: 0 0 20px rgba(58,120,181,0.15);
   --shadow-glow-accent: 0 0 20px rgba(233,154,20,0.15);
 
   /* Transiciones */
