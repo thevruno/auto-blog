@@ -169,8 +169,7 @@ export default async function HomePage() {
                   height={500}
                   className="aspect-[4/5] w-full object-cover"
                   priority
-                  placeholder={profile.heroPhoto.startsWith("/") ? "blur" : undefined}
-                  blurDataURL={profile.heroPhoto.startsWith("/") ? undefined : undefined}
+                  
                 />
               ) : (
                 <div className="grid aspect-[4/5] w-full place-items-center bg-gradient-to-br from-brand-100 to-brand-200/50 text-6xl">

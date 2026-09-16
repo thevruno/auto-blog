@@ -94,11 +94,11 @@ export default function ImageField({
             : undefined)
         }
       >
-        <div className="flex items-center gap-3">
-          <div
-            className="grid shrink-0 place-items-center overflow-hidden rounded-lg border border-ink/15 bg-cream text-3xl"
-            style={{ width: previewWidth, height: PREVIEW_HEIGHT }}
-          >
+<div className="flex flex-col sm:flex-row items-center sm:items-start gap-3 w-full">
+            <div
+              className="grid shrink-0 place-items-center overflow-hidden rounded-lg border border-ink/15 bg-cream text-3xl w-full sm:w-auto"
+              style={{ width: '100%', height: PREVIEW_HEIGHT, maxWidth: previewWidth }}
+            >
             {value ? (
               // eslint-disable-next-line @next/next/no-img-element -- previsualización del archivo subido (puede venir de Supabase, del disco o de una URL externa).
               <img
@@ -110,17 +110,18 @@ export default function ImageField({
               <span aria-hidden="true">🖼️</span>
             )}
           </div>
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
             <Button
               type="button"
               variant="secondary"
               onClick={() => fileRef.current?.click()}
               disabled={uploading}
+              className="w-full sm:w-auto"
             >
               {uploading ? <Spinner className="h-4 w-4" /> : "Subir imagen"}
             </Button>
             {value && (
-              <Button type="button" variant="ghost" onClick={() => onChange("")}>
+              <Button type="button" variant="ghost" onClick={() => onChange("")} className="w-full sm:w-auto">
                 Quitar
               </Button>
             )}
