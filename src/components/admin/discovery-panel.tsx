@@ -42,6 +42,8 @@ const STATUS_FILTERS: { value: string; label: string }[] = [
   { value: "all", label: "Todos" },
 ];
 
+const PAGE_SIZE = 10;
+
 export default function DiscoveryPanel() {
   const [topics, setTopics] = useState<DiscoveryTopic[]>([]);
   const [leads, setLeads] = useState<DiscoveryLead[]>([]);
@@ -62,6 +64,9 @@ export default function DiscoveryPanel() {
   );
 
   const [filters, setFilters] = useState({ q: "", status: "open", type: "" });
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [hasMore, setHasMore] = useState(false);
 
   const [topicFormOpen, setTopicFormOpen] = useState(false);
   const [topicDraft, setTopicDraft] = useState({ label: "", query: "", strict: false });
@@ -86,25 +91,38 @@ export default function DiscoveryPanel() {
     setQuery((current) => current || primary?.query || data.topics?.[0]?.query || "");
   }, []);
 
-  const loadLeads = useCallback(async () => {
+  const loadLeads = useCallback(async (resetPage = false) => {
     setLoading(true);
     try {
       const params = new URLSearchParams();
       if (filters.q) params.set("q", filters.q);
       if (filters.status) params.set("status", filters.status);
       if (filters.type) params.set("type", filters.type);
+      params.set("limit", String(PAGE_SIZE));
+      params.set("offset", String(resetPage ? 0 : (page - 1) * PAGE_SIZE));
       const res = await fetch(`/api/admin/discovery?${params.toString()}`);
       if (!res.ok) {
         setMessage({ tone: "error", text: "No se pudieron cargar los hallazgos." });
         return;
       }
       const data = await res.json();
-      setLeads(data.items ?? []);
+      const newItems = data.items ?? [];
+      const total = data.total ?? 0;
+      const newTotalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+
+      if (resetPage) {
+        setLeads(newItems);
+        setPage(1);
+      } else {
+        setLeads((prev) => [...prev, ...newItems]);
+      }
+      setTotalPages(newTotalPages);
+      setHasMore(page * PAGE_SIZE < total);
       setCounts(data.counts ?? EMPTY_COUNTS);
     } finally {
       setLoading(false);
     }
-  }, [filters]);
+  }, [filters, page]);
 
   useEffect(() => {
     // Diferido para no llamar a setState dentro del cuerpo del efecto.
@@ -112,12 +130,24 @@ export default function DiscoveryPanel() {
     return () => clearTimeout(timer);
   }, [loadTopics]);
 
+  // Cargar leads iniciales (no re-ejecutar búsqueda)
   useEffect(() => {
+    // Verificar si hay datos en caché
+    const cached = typeof window !== "undefined" ? sessionStorage.getItem("discovery:lastQuery") : null;
+    if (cached) {
+      const parsed = JSON.parse(cached);
+      setQuery(parsed.query || "");
+      setFilters((prev) => ({
+        ...prev,
+        status: parsed.status || "open",
+        type: parsed.type || "",
+      }));
+    }
     const timer = setTimeout(() => {
-      void loadLeads();
+      void loadLeads(true);
     }, 250);
     return () => clearTimeout(timer);
-  }, [loadLeads]);
+  }, []);
 
   const activeTopics = useMemo(
     () => topics.filter((topic) => topic.isActive),
@@ -173,9 +203,18 @@ export default function DiscoveryPanel() {
       if (filters.status === "open" || filters.status === "all" || filters.status === "new") {
         setLeads(data.items ?? []);
       } else {
-        void loadLeads();
+        void loadLeads(true);
       }
       void loadTopics();
+
+      // Guardar en caché
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("discovery:lastQuery", JSON.stringify({
+          query: payload.query ?? query,
+          status: filters.status,
+          type: filters.type,
+        }));
+      }
 
       setMessage({
         tone: "ok",
@@ -719,19 +758,32 @@ export default function DiscoveryPanel() {
             description="Hacé una búsqueda arriba para ver notas, videos y posteos sobre el tema."
           />
         ) : (
-          <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-            {leads.map((lead) => (
-              <DiscoveryLeadCard
-                key={lead.id}
-                lead={lead}
-                isNew={newIds.includes(lead.id)}
-                busy={busyLead === lead.id}
-                onStatus={(status) => void changeStatus(lead, status)}
-                onImport={() => setImportTarget(lead)}
-                onDelete={() => setToDelete(lead)}
-              />
-            ))}
-          </div>
+          <>
+            <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+              {leads.map((lead) => (
+                <DiscoveryLeadCard
+                  key={lead.id}
+                  lead={lead}
+                  isNew={newIds.includes(lead.id)}
+                  busy={busyLead === lead.id}
+                  onStatus={(status) => void changeStatus(lead, status)}
+                  onImport={() => setImportTarget(lead)}
+                  onDelete={() => setToDelete(lead)}
+                />
+              ))}
+            </div>
+            {hasMore && (
+              <div className="mt-6 flex justify-center">
+                <Button
+                  variant="secondary"
+                  onClick={() => void loadLeads(false)}
+                  disabled={loading}
+                >
+                  {loading ? <Spinner className="h-4 w-4" /> : `Cargar más (página ${page + 1} de ${totalPages})`}
+                </Button>
+              </div>
+            )}
+          </>
         )}
       </section>
 
