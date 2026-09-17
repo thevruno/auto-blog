@@ -80,6 +80,7 @@ export default function DiscoveryPanel() {
   const [importTarget, setImportTarget] = useState<DiscoveryLead | null>(null);
   const [toDelete, setToDelete] = useState<DiscoveryLead | null>(null);
   const [busyLead, setBusyLead] = useState<number | null>(null);
+  const [busyTopic, setBusyTopic] = useState<number | null>(null);
   const [toDiscardClear, setToDiscardClear] = useState(false);
 
   const loadTopics = useCallback(async () => {
@@ -289,13 +290,18 @@ export default function DiscoveryPanel() {
   }
 
   async function deleteTopic(id: number) {
-    const res = await fetch(`/api/admin/discovery/topics/${id}`, { method: "DELETE" });
-    if (!res.ok) {
-      setMessage({ tone: "error", text: "No se pudo eliminar el tema." });
-      return;
+    setBusyTopic(id);
+    try {
+      const res = await fetch(`/api/admin/discovery/topics/${id}`, { method: "DELETE" });
+      if (!res.ok) {
+        setMessage({ tone: "error", text: "No se pudo eliminar el tema." });
+        return;
+      }
+      setMessage({ tone: "ok", text: "Tema eliminado. Los hallazgos se conservan." });
+      void loadTopics();
+    } finally {
+      setBusyTopic(null);
     }
-    setMessage({ tone: "ok", text: "Tema eliminado. Los hallazgos se conservan." });
-    void loadTopics();
   }
 
   async function changeStatus(lead: DiscoveryLead, status: string) {
@@ -680,9 +686,17 @@ export default function DiscoveryPanel() {
                         <button
                           type="button"
                           onClick={() => void deleteTopic(topic.id)}
-                          className="rounded-lg px-2.5 py-2 text-xs font-medium text-red-600 hover:bg-red-50"
+                          disabled={busyTopic === topic.id}
+                          className="rounded-lg px-2.5 py-2 text-xs font-medium text-red-600 hover:bg-red-50 disabled:opacity-50"
                         >
-                          Eliminar
+                          {busyTopic === topic.id ? (
+                            <span className="flex items-center gap-1.5">
+                              <Spinner className="h-3 w-3" />
+                              Eliminando…
+                            </span>
+                          ) : (
+                            "Eliminar"
+                          )}
                         </button>
                       </div>
                     </>
