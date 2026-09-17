@@ -14,7 +14,7 @@ export default async function MediosPage() {
   const items = await getMediaItems();
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
+    <div className="mx-auto max-w-6xl px-4 pt-20 pb-12 sm:px-6">
       <header className="max-w-2xl">
         <p className="text-sm font-semibold uppercase tracking-[0.15em] text-accent-600">
           Medios
