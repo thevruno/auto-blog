@@ -150,7 +150,7 @@ export async function getDistinctTags(): Promise<string[]> {
  * Apariciones en medios visibles en el sitio. Los ítems importados desde el
  * rastreo web entran como borrador y no se publican hasta revisarlos.
  */
-export async function getMediaItems(type?: string) {
+export async function getMediaItems(type?: string, limit?: number) {
   const build = (onlyPublished: boolean) => {
     const conditions: SQL[] = [];
     if (type) conditions.push(eq(mediaItems.type, type));
@@ -159,7 +159,8 @@ export async function getMediaItems(type?: string) {
       .select()
       .from(mediaItems)
       .where(conditions.length > 0 ? and(...conditions) : undefined)
-      .orderBy(desc(mediaItems.publishedAt));
+      .orderBy(desc(mediaItems.publishedAt))
+      .limit(limit ?? 500);
   };
 
   try {

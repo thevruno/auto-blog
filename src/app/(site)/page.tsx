@@ -48,7 +48,7 @@ export default async function HomePage() {
     getSiteProfile(),
     getCredentials(),
     getLatestPosts(3),
-    getMediaItems(),
+    getMediaItems(undefined, 6),
   ]);
 
   const ogImage = profile?.heroPhoto
