@@ -1,6 +1,6 @@
 export default function BlogLoading() {
   return (
-    <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
+    <div className="mx-auto max-w-6xl px-4 pt-20 pb-12 sm:px-6">
       {/* Header skeleton */}
       <div className="max-w-2xl">
         <div className="skeleton h-5 w-24 rounded-full" />
