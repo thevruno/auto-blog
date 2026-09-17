@@ -81,6 +81,7 @@ export default function DiscoveryPanel() {
   const [toDelete, setToDelete] = useState<DiscoveryLead | null>(null);
   const [busyLead, setBusyLead] = useState<number | null>(null);
   const [busyTopic, setBusyTopic] = useState<number | null>(null);
+  const [savingTopic, setSavingTopic] = useState(false);
   const [toDiscardClear, setToDiscardClear] = useState(false);
 
   const loadTopics = useCallback(async () => {
@@ -253,25 +254,30 @@ export default function DiscoveryPanel() {
       return;
     }
 
-    const res = await fetch("/api/admin/discovery/topics", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        label,
-        query: searchQuery,
-        strict: topicDraft.strict,
-        providers: selectedProviders,
-      }),
-    });
-    const data = await res.json();
-    if (!res.ok) {
-      setMessage({ tone: "error", text: data.error ?? "No se pudo guardar el tema." });
-      return;
+    setSavingTopic(true);
+    try {
+      const res = await fetch("/api/admin/discovery/topics", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          label,
+          query: searchQuery,
+          strict: topicDraft.strict,
+          providers: selectedProviders,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setMessage({ tone: "error", text: data.error ?? "No se pudo guardar el tema." });
+        return;
+      }
+      setTopicDraft({ label: "", query: "", strict: false });
+      setTopicFormOpen(false);
+      setMessage({ tone: "ok", text: `Tema «${label}» agregado al rastreo.` });
+      void loadTopics();
+    } finally {
+      setSavingTopic(false);
     }
-    setTopicDraft({ label: "", query: "", strict: false });
-    setTopicFormOpen(false);
-    setMessage({ tone: "ok", text: `Tema «${label}» agregado al rastreo.` });
-    void loadTopics();
   }
 
   async function updateTopic(id: number, patch: Record<string, unknown>) {
@@ -473,8 +479,17 @@ export default function DiscoveryPanel() {
               />
             </Field>
             <div className="flex items-end gap-2">
-              <Button onClick={() => void saveTopicAsWatched()}>Guardar tema</Button>
-              <Button variant="ghost" onClick={() => setTopicFormOpen(false)}>
+              <Button onClick={() => void saveTopicAsWatched()} disabled={savingTopic}>
+                {savingTopic ? (
+                  <span className="flex items-center gap-1.5">
+                    <Spinner className="h-4 w-4" />
+                    Guardando…
+                  </span>
+                ) : (
+                  "Guardar tema"
+                )}
+              </Button>
+              <Button variant="ghost" onClick={() => setTopicFormOpen(false)} disabled={savingTopic}>
                 Cancelar
               </Button>
             </div>
