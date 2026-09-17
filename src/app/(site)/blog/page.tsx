@@ -40,7 +40,7 @@ export default async function BlogPage({
   const isFiltered = Boolean(q || tag);
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
+    <div className="mx-auto max-w-6xl px-4 pt-20 pb-12 sm:px-6">
       <header className="max-w-2xl animate-fade-in">
         <span className="inline-flex items-center gap-2 rounded-full bg-brand-100/80 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-brand-700">
           Blog
