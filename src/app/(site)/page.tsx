@@ -149,7 +149,7 @@ export default async function HomePage() {
                 href="/#contacto"
                 className="inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-semibold text-brand-800 ring-1 ring-brand-200/60 transition-all duration-200 hover:bg-brand-50 hover:ring-brand-300 hover:shadow-sm"
               >
-                Escribirme
+                Escribime
               </Link>
             </div>
           </div>
