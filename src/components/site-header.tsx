@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 import { Menu, X } from "lucide-react";
@@ -49,15 +50,19 @@ export default function SiteHeader() {
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
           <Link
             href="/"
-            className="flex items-center gap-2.5 group"
+            className="flex items-center group"
             onClick={() => setOpen(false)}
           >
-            <span className="grid h-9 w-9 place-items-center rounded-xl bg-brand-700 font-serif text-lg font-semibold text-white shadow-sm transition-all duration-300 group-hover:bg-brand-600 group-hover:shadow-md group-hover:scale-105">
-              E
-            </span>
-            <span className="font-serif text-lg font-semibold leading-tight text-ink transition-colors duration-200 group-hover:text-brand-700">
-              Elena Kuchimpos
-            </span>
+            <Image
+              src="/images/logo-elena.png"
+              alt="Elena Kuchimpos"
+              width={200}
+              height={50}
+              className={`h-12 w-auto transition-all duration-300 group-hover:scale-105 sm:h-14 ${
+                scrolled ? "scale-85" : "scale-100"
+              }`}
+              priority
+            />
           </Link>
 
           <nav className="hidden items-center gap-1 md:flex" aria-label="Navegación principal">

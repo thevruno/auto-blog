@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
-import { Fraunces, Inter } from "next/font/google";
+import { Fraunces, Inter, Great_Vibes } from "next/font/google";
 import "./globals.css";
 
 const inter = Inter({
@@ -14,6 +14,13 @@ const fraunces = Fraunces({
   variable: "--font-fraunces",
   display: "swap",
   weight: ["400", "500", "600", "700"],
+});
+
+const greatVibes = Great_Vibes({
+  subsets: ["latin"],
+  variable: "--font-great-vibes",
+  display: "swap",
+  weight: "400",
 });
 
 export const metadata: Metadata = {
@@ -40,14 +47,14 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#285b59",
+  themeColor: "#3a78b5",
   width: "device-width",
   initialScale: 1,
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="es" className={`${inter.variable} ${fraunces.variable}`}>
+    <html lang="es" className={`${inter.variable} ${fraunces.variable} ${greatVibes.variable}`}>
       <body className="min-h-screen antialiased">{children}</body>
     </html>
   );

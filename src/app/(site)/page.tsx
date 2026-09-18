@@ -116,19 +116,20 @@ export default async function HomePage() {
       />
 
       {/* Hero */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-brand-50 via-cream to-cream">
-        {/* Formas decorativas */}
-        <div className="absolute top-20 -left-32 h-64 w-64 rounded-full bg-brand-200/20 blur-3xl" />
-        <div className="absolute top-40 right-0 h-48 w-48 rounded-full bg-accent-200/25 blur-3xl" />
-        <div className="absolute bottom-0 left-1/3 h-40 w-40 rounded-full bg-brand-100/30 blur-2xl" />
+      <section className="relative flex min-h-screen items-center overflow-hidden bg-gradient-to-br from-brand-50 via-cream to-accent-50/30">
+        {/* Formas decorativas - matches photo container style */}
+        <div className="absolute -top-32 -left-32 h-[500px] w-[500px] rounded-full bg-accent-200/40 blur-3xl" />
+        <div className="absolute top-1/4 -right-24 h-[400px] w-[400px] rounded-full bg-brand-200/30 blur-3xl" />
+        <div className="absolute -bottom-20 left-1/3 h-[350px] w-[350px] rounded-full bg-brand-300/20 blur-3xl" />
+        <div className="absolute bottom-1/4 left-0 h-[300px] w-[300px] rounded-full bg-accent-100/40 blur-3xl" />
 
-        <div className="relative mx-auto grid max-w-6xl items-center gap-12 px-4 pt-28 pb-16 sm:px-6 md:grid-cols-[1.15fr_0.85fr] md:pt-32 md:pb-24">
+        <div className="relative mx-auto grid w-full max-w-6xl items-center gap-12 px-4 py-32 sm:px-6 md:grid-cols-[1.15fr_0.85fr]">
           <div className="animate-fade-in">
-            <span className="inline-flex items-center gap-2 rounded-full bg-brand-100/80 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-brand-700">
+            <span className="inline-flex items-center gap-2 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-brand-600">
               <span className="h-1.5 w-1.5 rounded-full bg-brand-500" />
               {profile?.location ? `${profile.location} · ` : ""}Educación con evidencia
             </span>
-            <h1 className="mt-5 text-balance font-serif text-4xl font-semibold leading-[1.08] text-ink sm:text-5xl md:text-[3.5rem] md:leading-[1.1]">
+            <h1 className="mt-5 text-balance font-script text-5xl font-normal leading-[1.1] text-ink sm:text-6xl md:text-7xl">
               {profile?.name ?? "Elena Kuchimpos"}
             </h1>
             <p className="mt-4 text-lg font-medium text-brand-600">
@@ -147,7 +148,7 @@ export default async function HomePage() {
               </Link>
               <Link
                 href="/#contacto"
-                className="inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-semibold text-brand-800 ring-1 ring-brand-200/60 transition-all duration-200 hover:bg-brand-50 hover:ring-brand-300 hover:shadow-sm"
+                className="inline-flex items-center gap-2 rounded-full bg-white/70 px-6 py-3 text-sm font-semibold text-brand-800 ring-1 ring-brand-200/60 backdrop-blur-sm transition-all duration-200 hover:bg-white hover:ring-brand-300 hover:shadow-sm"
               >
                 Escribime
               </Link>
@@ -180,11 +181,11 @@ export default async function HomePage() {
           </div>
         </div>
 
-        {/* Onda decorativa inferior */}
-        <div className="absolute bottom-0 left-0 right-0">
-          <svg viewBox="0 0 1440 60" fill="none" className="w-full text-white/50">
-            <path d="M0 60V30C240 10 480 50 720 30C960 10 1200 50 1440 30V60H0Z" fill="currentColor" />
-          </svg>
+        {/* Scroll indicator */}
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
+          <div className="h-6 w-10 rounded-full border-2 border-brand-400/50 flex items-start justify-center pt-2">
+            <div className="h-1.5 w-1.5 rounded-full bg-brand-500/60" />
+          </div>
         </div>
       </section>
 
