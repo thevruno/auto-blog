@@ -44,6 +44,29 @@ const STATUS_FILTERS: { value: string; label: string }[] = [
 
 const PAGE_SIZE = 10;
 
+// Caché de la última búsqueda (solo lectura, se inicializa una vez)
+function getCachedQuery(): string {
+  if (typeof window === "undefined") return "";
+  try {
+    const cached = sessionStorage.getItem("discovery:lastQuery");
+    return cached ? JSON.parse(cached).query ?? "" : "";
+  } catch {
+    return "";
+  }
+}
+
+function getCachedFilters(): { status: string; type: string } {
+  if (typeof window === "undefined") return { status: "open", type: "" };
+  try {
+    const cached = sessionStorage.getItem("discovery:lastQuery");
+    if (!cached) return { status: "open", type: "" };
+    const parsed = JSON.parse(cached);
+    return { status: parsed.status || "open", type: parsed.type || "" };
+  } catch {
+    return { status: "open", type: "" };
+  }
+}
+
 export default function DiscoveryPanel() {
   const [topics, setTopics] = useState<DiscoveryTopic[]>([]);
   const [leads, setLeads] = useState<DiscoveryLead[]>([]);
@@ -57,13 +80,13 @@ export default function DiscoveryPanel() {
     null,
   );
 
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState(getCachedQuery);
   const [strict, setStrict] = useState(false);
   const [selectedProviders, setSelectedProviders] = useState<ProviderId[]>(
     PROVIDERS.map((provider) => provider.id),
   );
 
-  const [filters, setFilters] = useState({ q: "", status: "open", type: "" });
+  const [filters, setFilters] = useState(() => ({ q: "", ...getCachedFilters() }));
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [hasMore, setHasMore] = useState(false);
@@ -132,24 +155,13 @@ export default function DiscoveryPanel() {
     return () => clearTimeout(timer);
   }, [loadTopics]);
 
-  // Cargar leads iniciales (no re-ejecutar búsqueda)
+  // Cargar leads iniciales
   useEffect(() => {
-    // Verificar si hay datos en caché
-    const cached = typeof window !== "undefined" ? sessionStorage.getItem("discovery:lastQuery") : null;
-    if (cached) {
-      const parsed = JSON.parse(cached);
-      setQuery(parsed.query || "");
-      setFilters((prev) => ({
-        ...prev,
-        status: parsed.status || "open",
-        type: parsed.type || "",
-      }));
-    }
     const timer = setTimeout(() => {
       void loadLeads(true);
     }, 250);
     return () => clearTimeout(timer);
-  }, []);
+  }, [loadLeads]);
 
   const activeTopics = useMemo(
     () => topics.filter((topic) => topic.isActive),
