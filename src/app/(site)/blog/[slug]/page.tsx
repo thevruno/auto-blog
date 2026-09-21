@@ -12,7 +12,7 @@ import RichText from "@/components/rich-text";
 import PostCard from "@/components/post-card";
 import { Calendar, Clock, Tag, ChevronRight } from "lucide-react";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 3600;
 
 function resolveImage(url: string | null | undefined): string | undefined {
   if (!url) return undefined;
@@ -28,11 +28,14 @@ export async function generateMetadata({
   const post = await getPublishedPostBySlug(slug);
   if (!post) return { title: "Nota no encontrada" };
 
-  const image = resolveImage(post.coverImage);
+  const image = resolveImage(post.coverImage) ?? absoluteUrl("/og-default.png");
 
   return {
     title: post.metaTitle || post.title,
     description: post.metaDescription || post.excerpt,
+    alternates: {
+      canonical: `/blog/${post.slug}`,
+    },
     openGraph: {
       type: "article",
       title: post.metaTitle || post.title,
@@ -40,13 +43,20 @@ export async function generateMetadata({
       publishedTime: post.publishedAt?.toISOString(),
       modifiedTime: post.updatedAt?.toISOString(),
       url: absoluteUrl(`/blog/${post.slug}`),
-      images: image ? [{ url: image }] : undefined,
+      images: [
+        {
+          url: image,
+          width: 1200,
+          height: 630,
+          alt: post.title,
+        },
+      ],
     },
     twitter: {
       card: "summary_large_image",
       title: post.metaTitle || post.title,
       description: post.metaDescription || post.excerpt,
-      images: image ? [image] : undefined,
+      images: [image],
     },
   };
 }
@@ -80,7 +90,14 @@ export default async function PostPage({
       name: profile?.name ?? "Elena Kuchimpos",
       url: absoluteUrl("/"),
     },
+    publisher: {
+      "@type": "Person",
+      name: profile?.name ?? "Elena Kuchimpos",
+      url: absoluteUrl("/"),
+    },
     mainEntityOfPage: absoluteUrl(`/blog/${post.slug}`),
+    wordCount: post.content ? post.content.split(/\s+/).length : undefined,
+    articleSection: post.tags?.[0] ?? "Educación",
   };
 
   const breadcrumbSchema = {
@@ -184,6 +201,7 @@ export default async function PostPage({
               alt={post.coverImageAlt || post.title}
               width={1200}
               height={675}
+              sizes="(max-width: 768px) 100vw, 1200px"
               className="aspect-[16/9] w-full object-cover"
               priority
             />

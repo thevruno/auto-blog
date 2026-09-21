@@ -33,6 +33,16 @@ export const metadata: Metadata = {
   },
   description:
     "Neuropsicoeducadora, directora del IFOPAC y especialista en altas capacidades, inclusión educativa y formación docente.",
+  keywords: [
+    "neuropsicoeducación",
+    "altas capacidades",
+    "inclusión educativa",
+    "formación docente",
+    "neuroeducación",
+    "IFOPAC",
+    "Elena Kuchimpos",
+    "educación con evidencia",
+  ],
   openGraph: {
     type: "website",
     locale: "es_AR",
@@ -40,9 +50,37 @@ export const metadata: Metadata = {
     title: "Elena Kuchimpos · Neuropsicoeducadora y Directora del IFOPAC",
     description:
       "Neuropsicoeducadora, directora del IFOPAC y especialista en altas capacidades, inclusión educativa y formación docente.",
+    images: [
+      {
+        url: "/og-default.png",
+        width: 1200,
+        height: 630,
+        alt: "Elena Kuchimpos - Neuropsicoeducadora",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
+    title: "Elena Kuchimpos · Neuropsicoeducadora y Directora del IFOPAC",
+    description:
+      "Neuropsicoeducadora, directora del IFOPAC y especialista en altas capacidades, inclusión educativa y formación docente.",
+    images: ["/og-default.png"],
+  },
+  icons: {
+    icon: "/images/logo-elena.png",
+    shortcut: "/images/logo-elena.png",
+    apple: "/images/logo-elena.png",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
   },
 };
 

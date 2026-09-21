@@ -15,7 +15,7 @@ import ContactForm from "@/components/contact-form";
 import SocialLinks from "@/components/social-links";
 import { ArrowRight, Mail, Phone, MapPin } from "lucide-react";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 3600;
 
 export async function generateMetadata(): Promise<Metadata> {
   const profile = await getSiteProfile();
@@ -23,7 +23,7 @@ export async function generateMetadata(): Promise<Metadata> {
     ? profile.heroPhoto.startsWith("/")
       ? absoluteUrl(profile.heroPhoto)
       : profile.heroPhoto
-    : undefined;
+    : absoluteUrl("/og-default.png");
   const name = profile?.name || "Elena Kuchimpos";
   return {
     title: {
@@ -34,11 +34,24 @@ export async function generateMetadata(): Promise<Metadata> {
     description:
       profile?.positioning ||
       "Neuropsicoeducadora, directora del IFOPAC y especialista en altas capacidades e inclusión educativa.",
+    alternates: {
+      canonical: "/",
+    },
     openGraph: {
-      type: "profile",
+      type: "website",
       title: profile?.name || "Elena Kuchimpos",
       description: profile?.positioning ?? undefined,
-      images: image ? [{ url: image }] : undefined,
+      images: [
+        {
+          url: image,
+          width: 1200,
+          height: 630,
+          alt: `${name} - Neuropsicoeducadora`,
+        },
+      ],
+    },
+    twitter: {
+      images: [image],
     },
   };
 }
@@ -168,9 +181,9 @@ export default async function HomePage() {
                   alt={profile.heroPhotoAlt || `${profile.name} retrato`}
                   width={400}
                   height={500}
+                  sizes="(max-width: 768px) 100vw, 400px"
                   className="aspect-[4/5] w-full object-cover"
                   priority
-                  
                 />
               ) : (
                 <div className="grid aspect-[4/5] w-full place-items-center bg-gradient-to-br from-brand-100 to-brand-200/50 text-6xl">

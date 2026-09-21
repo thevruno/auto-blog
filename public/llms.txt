@@ -1,0 +1,28 @@
+# Elena Kuchimpos - Auto-Blog
+
+## About
+
+This is the personal website of Elena Kuchimpos, a neuropsych educator and director of IFOPAC (Instituto de Formación y Orientación Profesional en Altas Capacidades).
+
+## Key Topics
+
+- Neuropsychology and education
+- High abilities (giftedness)
+- Educational inclusion
+- Teacher training
+- Evidence-based education
+
+## Site Structure
+
+- Homepage: Professional profile, credentials, latest blog posts, media appearances
+- Blog: Articles about education, neuroeducation, and inclusion
+- Media: Interviews, press coverage, videos, and podcasts
+- Contact: Professional contact information
+
+## Content Language
+
+Spanish (Argentina)
+
+## Contact
+
+For professional inquiries, use the contact form on the website.
